@@ -4,20 +4,20 @@
 #include <string>
 #include <memory>
 
-#define MsgThrow(message)                                                    \
-    throw msg::Exception((message), __FILE__, __LINE__, __func__)
+#define PsxThrow(message)                                                    \
+    throw psx::Exception((message), __FILE__, __LINE__, __func__)
 
-#define MsgThrowIfNull(variable)                                             \
+#define PsxThrowIfNull(variable)                                             \
     if (nullptr == (variable)) {                                             \
-        MsgThrow(std::string(#variable).append(" == nullptr"));              \
-    } else msg::noop()
+        PsxThrow(std::string(#variable).append(" == nullptr"));              \
+    } else psx::noop()
 
-#define MsgAssert(condition)                                                 \
+#define PsxAssert(condition)                                                 \
     if (!(condition)) {                                                      \
-        MsgThrow(#condition);                                                \
-    } else msg::noop()
+        PsxThrow(#condition);                                                \
+    } else psx::noop()
 
-namespace msg {
+namespace psx {
 
 inline void noop() {}
 
@@ -106,4 +106,4 @@ inline Exception::StrPtr Exception::_init(S message, const char *file, int line,
     return StrPtr(); // NOTEST
 }
 
-} // namespace msg
+} // namespace psx
