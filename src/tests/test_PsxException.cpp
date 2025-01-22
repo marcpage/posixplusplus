@@ -6,24 +6,24 @@ using namespace std;
 void test_it_not_null() {
     int var;
     int *varPtr = &var;
-    MsgThrowIfNull(varPtr);
+    PsxThrowIfNull(varPtr);
 }
 
 void test_is_null() {
     int *var = nullptr;
-    MsgThrowIfNull(var);
+    PsxThrowIfNull(var);
 }
 
 void test_message() {
-    MsgThrow("Test");
+    PsxThrow("Test");
 }
 
 void test_assert_fail() {
-    MsgAssert(1 == 0);
+    PsxAssert(1 == 0);
 }
 
 void test_assertion() {
-    MsgAssert(1 == 1);
+    PsxAssert(1 == 1);
 }
 
 START_TESTS
@@ -64,25 +64,25 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        throw msg::Exception("test");
+        throw psx::Exception("test");
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test");
     END_TEST_TRY
 
     TEST_TRY
-        throw msg::Exception("test", "file");
+        throw psx::Exception("test", "file");
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file");
     END_TEST_TRY
 
     TEST_TRY
-        throw msg::Exception("test", "file",3);
+        throw psx::Exception("test", "file",3);
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3");
     END_TEST_TRY
 
     TEST_TRY
-        throw msg::Exception("test", "file",3, "func");
+        throw psx::Exception("test", "file",3, "func");
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
     END_TEST_TRY
