@@ -1,0 +1,22 @@
+#pragma once
+
+#include <exception>
+#include <stdio.h>
+
+using namespace std;
+
+inline void noop() {}
+
+#define FAIL() failures += 1; printf("FAILED: %s:%d\n", __FILE__, __LINE__)
+#define FAIL_IN_CATCH() failures += 1; printf("FAILED: %s:%d\n%s\n", __FILE__, __LINE__, exception.what())
+#define ASSERT_IN_CATCH(condition) \
+    if (!(condition)) {                        \
+        failures += 1;                         \
+        printf("FAILED: %s:%d: %s\n%s\n", __FILE__, __LINE__, #condition, exception.what()); \
+    } else noop()
+
+#define START_TESTS int main(const int argc, const char *argv[]) {int failures = 0;
+#define TEST_TRY try {
+#define TEST_CATCH } catch(const exception &exception) {
+#define END_TEST_TRY }
+#define END_TESTS if ( (argc > 0) && (0 == failures) ) {printf("PASS: %s\n", argv[0]);} return failures;}
