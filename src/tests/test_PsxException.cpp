@@ -1,4 +1,4 @@
-#include "../include/Exception.h"
+#include "../include/PsxException.h"
 #include "test.h"
 
 using namespace std;
@@ -61,6 +61,30 @@ START_TESTS
         test_assertion();
     TEST_CATCH
         FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        throw msg::Exception("test");
+    TEST_CATCH
+        ASSERT_IN_CATCH(string(exception.what()) == "test");
+    END_TEST_TRY
+
+    TEST_TRY
+        throw msg::Exception("test", "file");
+    TEST_CATCH
+        ASSERT_IN_CATCH(string(exception.what()) == "test File: file");
+    END_TEST_TRY
+
+    TEST_TRY
+        throw msg::Exception("test", "file",3);
+    TEST_CATCH
+        ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3");
+    END_TEST_TRY
+
+    TEST_TRY
+        throw msg::Exception("test", "file",3, "func");
+    TEST_CATCH
+        ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
     END_TEST_TRY
 
 END_TESTS

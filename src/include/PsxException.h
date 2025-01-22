@@ -75,7 +75,7 @@ inline const char *Exception::what() const throw() {
     if (nullptr != _message) {
         return _message->c_str();
     }
-    return "Unable to allocate message string";
+    return "Unable to allocate message string"; // NOTEST
 }
 
 template <class S>
@@ -103,7 +103,7 @@ inline Exception::StrPtr Exception::_init(S message, const char *file, int line,
         return messagePtr;
     } catch(const std::exception &) {}
 
-    return StrPtr();
+    return StrPtr(); // NOTEST
 }
 
 } // namespace msg
