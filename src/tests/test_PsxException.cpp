@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void test_it_not_null() {
+void test_if_not_null() {
     int var;
     int *varPtr = &var;
     PsxThrowIfNull(varPtr);
@@ -52,7 +52,7 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        test_it_not_null();
+        test_if_not_null();
     TEST_CATCH
         FAIL_IN_CATCH();
     END_TEST_TRY
