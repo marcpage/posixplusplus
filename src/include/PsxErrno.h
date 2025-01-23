@@ -3,7 +3,7 @@
 #include "PsxException.h"
 
 #include <errno.h>
-
+#include <string.h>
 
 #define ErrnoThrow(name)                                                       \
   throw psx::err::name##_Errno(#name, __FILE__, __LINE__)
