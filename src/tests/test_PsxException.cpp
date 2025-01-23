@@ -26,6 +26,11 @@ void test_assertion() {
     PsxAssert(1 == 1);
 }
 
+template <typename T>
+void test_self_assign(T &first, const T &second) {
+    first = second;
+}
+
 START_TESTS
     TEST_TRY
         test_message();
@@ -82,7 +87,12 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        throw psx::Exception("test", "file",3, "func");
+        auto error = psx::Exception(string("test"), "file",3, "func");
+        psx::Exception other(error);
+        psx::Exception third(string("what"));
+        third = other;
+        test_self_assign(third, third);
+        throw third;
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
     END_TEST_TRY

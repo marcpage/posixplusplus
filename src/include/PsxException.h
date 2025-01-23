@@ -47,14 +47,14 @@ inline Exception::Exception(const std::string &message, const char *file, int li
 inline Exception::Exception(const Exception &other)
     :exception(), _message(nullptr) {
     if (nullptr == other._message) {
-        return;
+        return; // NOTEST
     }
     
     try {
         _message = StrPtr(std::make_unique<Str>(*other._message));
     } catch (const std::exception &) {
-        _message = nullptr;
-    }
+        _message = nullptr; // NOTEST
+    } // NOTEST
 }
 
 inline Exception &Exception::operator=(const Exception &other) {
@@ -63,8 +63,8 @@ inline Exception &Exception::operator=(const Exception &other) {
     }
 
     if (nullptr == other._message) {
-        _message = nullptr;
-        return *this;
+        _message = nullptr; // NOTEST
+        return *this; // NOTEST
     }
 
     _message = std::make_unique<Str>(*other._message);
