@@ -18,5 +18,6 @@ inline void noop() {}
 #define START_TESTS int main(const int argc, const char *argv[]) {int failures = 0;
 #define TEST_TRY try {
 #define TEST_CATCH } catch(const exception &exception) {
+#define TEST_CATCH_TYPE(type) } catch(const type &exception) {
 #define END_TEST_TRY }
 #define END_TESTS if ( (argc > 0) && (0 == failures) ) {printf("PASS: %s\n", argv[0]);} return failures;}
