@@ -1,4 +1,4 @@
-CXX=clang++
+CXX=g++
 CPPFLAGS=-std=c++14 -Wall -Weffc++ -Wextra -Wshadow -Wwrite-strings -Werror
 CPPFLAGS+=-fno-optimize-sibling-calls -fprofile-arcs -ftest-coverage -O0 -g
 CPPFLAGS+=-fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined
@@ -28,6 +28,6 @@ $(foreach test,$(TESTS),$(eval $(call HANDLE_TEST,$(test))))
 test: $(TESTS)
 
 clean:
-	@gcc --version
+	@$(CXX) --version
 	@gcov --version
 	@rm -Rf $(OUTPUTDIR)
