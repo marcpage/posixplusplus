@@ -212,8 +212,8 @@ inline Errno::Errno(int value, const char *errnoName, const char *file, int line
 inline Errno::Errno(const std::string &message, int value, const char *errnoName, const char *file, int line, const char *function) throw()
     : psx::Exception(_init(message, errnoName, value), file, line, function), _errno(value) {}
 
-inline const char *Errno::name() const { // NOTEST
-    return "[Unknown]"; // NOTEST
+inline const char *Errno::name() const {
+    return "[Unknown]";
 }
 
 inline int Errno::code() const throw() {
@@ -376,7 +376,7 @@ inline void Errno::_throw(int errnoCode, const std::string &message, const char 
                 throw Errno(message, errnoCode, "[Unknown]", file, line);
         }
     }
-}
+} // NOTEST
 
 inline int Errno::_throwOnNegative(const int returnCode, const char *call, const char *file, const int line) {
     if (returnCode < 0) {

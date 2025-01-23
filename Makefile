@@ -2,6 +2,7 @@ CXX=g++
 CPPFLAGS=-std=c++14 -Wall -Weffc++ -Wextra -Wshadow -Wwrite-strings -Werror
 CPPFLAGS+=-fno-optimize-sibling-calls -fprofile-arcs -ftest-coverage -O0 -g
 CPPFLAGS+=-fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined
+CPPFLAGS+=-fno-inline -fkeep-inline-functions -Wno-ignored-optimization-argument
 SOURCEDIR=src/tests
 OUTPUTDIR=bin
 SOURCES=$(wildcard $(SOURCEDIR)/test_*.cpp)

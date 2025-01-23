@@ -97,4 +97,6 @@ START_TESTS
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
     END_TEST_TRY
 
+    // TODO: test PsxThrowIfNull and PsxAssert in if else clauses
+
 END_TESTS
