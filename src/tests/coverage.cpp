@@ -33,7 +33,7 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
 
             line.erase(0, static_cast<size_t>(end-line.c_str())); // % of 44
             PsxAssert(line.find(percentOf) == 0);
-            
+
             line.erase(0, percentOf.size()); // 44
             total = std::strtod(line.c_str(), &end);
             executed = int(round(percent * total / 100.0));
@@ -45,12 +45,19 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
 
 int main(const int argc, const char *argv[]) {
     const auto number_of_arguments = argc - 1;
-    PsxAssert(number_of_arguments == 3);
+    PsxAssert(number_of_arguments == 4);
+    char *end;
+    auto minimum_percent = std::strtof(argv[4], &end);
+    PsxAssert(end != argv[4]);
     string test_name = argv[1];
     int executed = 0, total = 0;
 
     get_coverage(test_name, argv[2], executed, total);
-    printf("::warning file=src/inc/%s.h,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", test_name.c_str(), executed, total, executed * 100.0 / total);
+
+    auto percent = executed * 100.0 / total;
+    auto type = percent < minimum_percent ? "error" : "warning";
+
+    printf("::%s file=src/inc/%s.h,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", type, test_name.c_str(), executed, total, percent);
 
     auto gcov = File::open(argv[3]);
 
