@@ -1,8 +1,18 @@
 CXX=g++
 CPPFLAGS=-std=c++14 -Wall -Weffc++ -Wextra -Wshadow -Wwrite-strings -Werror
+CPPFLAGS+=-Wpedantic -pedantic-errors -Wdisabled-optimization
+CPPFLAGS+=-Waggregate-return -Wbad-function-cast -Wcast-align -Wcast-qual
+CPPFLAGS+=-Wdeclaration-after-statement -Wfloat-equal -Wformat=2
+CPPFLAGS+=-Wmissing-declarations -Wmissing-include-dirs -Wmissing-prototypes
+CPPFLAGS+=-Wnested-externs -Wpointer-arith -Wredundant-decls -Wsequence-point
+CPPFLAGS+=-Wstrict-prototypes -Wswitch -Wundef -Wunreachable-code
+CPPFLAGS+=-Wunused-but-set-parameter -Wwrite-strings -Wctor-dtor-privacy
 CPPFLAGS+=-fno-optimize-sibling-calls -fprofile-arcs -ftest-coverage -O0 -g
 CPPFLAGS+=-fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined
 CPPFLAGS+=-fno-inline -fkeep-inline-functions -Wno-ignored-optimization-argument
+CPPFLAGS+=-Winit-self -Wold-style-cast -Woverloaded-virtual
+CPPFLAGS+=-Wsign-conversion -Wsign-promo
+CPPFLAGS+=-Wstrict-overflow=5 -Wswitch-default -Wno-unused
 SOURCEDIR=src/tests
 OUTPUTDIR=bin
 SOURCES=$(wildcard $(SOURCEDIR)/test_*.cpp)

@@ -118,7 +118,7 @@ inline std::string &File::read(std::string &buffer, size_t bytesToRead, off_t of
     _locationAndSize(currentPos, current_size);
 
     if (RestOfFile == bytesToRead) {
-        bytesToRead = current_size - currentPos;
+        bytesToRead = static_cast<size_t>(current_size - currentPos);
     }
 
     PsxAssert(currentPos + static_cast<off_t>(bytesToRead) <= current_size);
@@ -174,7 +174,7 @@ inline std::string &File::readLine(std::string &buffer, off_t offset, Relative r
         }
 
         if (eol != std::string::npos) {
-            const off_t rewindTo = (partial.size() - eol - 1);
+            const off_t rewindTo = static_cast<off_t>(partial.size() - eol - 1);
 
             _goto(-1 * rewindTo, FromHere);
             partial.erase(eol + 1);
@@ -193,13 +193,11 @@ inline std::string File::readLine(off_t offset, Relative relative, size_t buffer
 }
 
 inline File &File::write(const void *buffer, size_t bufferSize, off_t offset, Relative relative) {
-    off_t amount;
-
     PsxAssert(!_readOnly);
     _goto(offset, relative);
-    amount = ::fwrite(reinterpret_cast<const char *>(buffer), 1, bufferSize, _file);
+    auto amount = ::fwrite(reinterpret_cast<const char *>(buffer), 1, bufferSize, _file);
     PsxAssert(::ferror(_file) == 0);
-    PsxAssert(amount == static_cast<off_t>(bufferSize));
+    PsxAssert(amount == bufferSize);
     return *this;
 }
 
@@ -214,13 +212,13 @@ inline File &File::flush() {
 }
 
 inline File File::open(const char *path, Method method, Protection protection) {
-    bool readOnly;
+    bool readOnly = false;
 
     return own(_open(path, method, protection, readOnly), readOnly);
 }
 
 inline File File::open(const std::string &path, Method method, Protection protection) {
-    bool readOnly;
+    bool readOnly = false;
 
     return own(_open(path.c_str(), method, protection, readOnly), readOnly);
 }

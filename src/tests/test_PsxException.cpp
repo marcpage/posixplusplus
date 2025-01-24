@@ -1,31 +1,31 @@
 #include "../inc/PsxException.h"
 #include "test.h"
 
-void test_if_not_null() {
+static void test_if_not_null() {
     int var;
     int *varPtr = &var;
     PsxThrowIfNull(varPtr);
 }
 
-void test_is_null() {
+static void test_is_null() {
     int *var = nullptr;
     PsxThrowIfNull(var);
 }
 
-void test_message() {
+static void test_message() {
     PsxThrow("Test");
 }
 
-void test_assert_fail() {
+static void test_assert_fail() {
     PsxAssert(1 == 0);
 }
 
-void test_assertion() {
+static void test_assertion() {
     PsxAssert(1 == 1);
 }
 
 template <typename T>
-void test_self_assign(T &first, const T &second) {
+static void test_self_assign(T &first, const T &second) {
     first = second;
 }
 
