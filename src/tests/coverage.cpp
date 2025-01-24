@@ -70,5 +70,7 @@ int main(const int argc, const char *argv[]) {
 
     auto gcov = File::open(argv[3]);
 
+    // TODO: parse gcov to report lines that are not covered
+
     return percent < minimum_percent ? 1 : 0;
 }
