@@ -1,8 +1,6 @@
 #include "../inc/PsxErrno.h"
 #include "test.h"
 
-using namespace std;
-
 START_TESTS
 
     TEST_TRY
@@ -12,7 +10,7 @@ START_TESTS
         ASSERT_IN_CATCH(string(exception.what()).find("E2BIG") != string::npos);
         ASSERT_IN_CATCH(string(exception.what()).find(to_string(E2BIG)) != string::npos);
     TEST_CATCH
-        FAIL();
+        FAIL_IN_CATCH();
     END_TEST_TRY
 
     const int errors[] = {

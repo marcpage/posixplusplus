@@ -17,7 +17,7 @@
 #define ErrnoOnNegative(call)                                                  \
   psx::err::Errno::_throwOnNegative(call, #call, __FILE__, __LINE__)
 
-#define ErrnoOnNULL(call)                                                      \
+#define ErrnoOnNull(call)                                                      \
   psx::err::Errno::_throwOnNull(call, #call, __FILE__, __LINE__)
 
 #define ErrnoAssert(condition)                                                 \

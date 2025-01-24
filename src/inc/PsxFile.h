@@ -13,7 +13,16 @@ public:
     enum Protection { ReadOnly, ReadWrite, TryWrite };
     enum Relative { FromHere, FromStart, FromEnd };
 
+    static File open(const char *path, Method method=Text, Protection protection=ReadOnly);
+    static File open(const std::string &path, Method method=Text, Protection protection=ReadOnly);
+    static File reference(FILE *file, bool readOnly=false);
+    static File own(FILE *file, bool readOnly=false);
+    static File err();
+    static File out();
+    static File in();
+
     File();
+    File(File&& other);
     virtual ~File();
 
     off_t size() const;
@@ -31,14 +40,6 @@ public:
     File &write(const void *buffer, size_t bufferSize, off_t offset=0, Relative relative=FromHere);
     File &write(const std::string &buffer, off_t offset=0, Relative relative=FromHere);
     File &flush();
-
-    static File open(const char *path, Method method=Text, Protection protection=ReadOnly);
-    static File open(const std::string &path, Method method=Text, Protection protection=ReadOnly);
-    static File reference(FILE *file, bool readOnly=false);
-    static File own(FILE *file, bool readOnly=false);
-    static File err();
-    static File out();
-    static File in();
 
     File(const File& temp_obj) = delete; 
     File& operator=(const File& temp_obj) = delete; 
@@ -60,6 +61,11 @@ private:
 
 inline File::File()
     :_file(nullptr), _owned(false), _readOnly(true) {}
+
+inline File::File(File&& other)
+    :_file(other._file), _owned(other._owned), _readOnly(other._readOnly) {
+    other._file = nullptr;
+}
 
 inline File::~File() {
     if (_owned && _file) {
@@ -117,7 +123,7 @@ inline std::string &File::read(std::string &buffer, size_t bytesToRead, off_t of
 
     PsxAssert(currentPos + static_cast<off_t>(bytesToRead) <= current_size);
     buffer.assign(bytesToRead, '\0');
-    _readCore(buffer.data(), bytesToRead);
+    _readCore(const_cast<char *>(buffer.data()), bytesToRead);
     return buffer;
 }
 
@@ -133,6 +139,7 @@ inline std::string &File::readLine(std::string &buffer, off_t offset, Relative r
     off_t left;
     bool foundCR = false, foundLF = false;
     off_t currentPos, current_size;
+    PsxAssert(bufferSize > 0);
 
     buffer.clear();
     _goto(offset, relative);
@@ -151,30 +158,30 @@ inline std::string &File::readLine(std::string &buffer, off_t offset, Relative r
         if (foundCR && (cr == partial.size() - 1) && (left > 0)) {
             char character;
 
-        read(&character, 1, 0, FromHere);
-        partial.append(1, character);
-        left -= 1;
+            read(&character, 1, 0, FromHere);
+            partial.append(1, character);
+            left -= 1;
+        }
+
+        lf = partial.find('\n');
+        foundLF = (lf != std::string::npos);
+        eol = std::string::npos;
+
+        if (foundCR && foundLF) {
+        eol = ((cr + 1 == lf) || (lf < cr)) ? lf : cr;
+        } else if (foundLF || foundCR) {
+        eol = foundLF ? lf : cr;
+        }
+
+        if (eol != std::string::npos) {
+            const off_t rewindTo = (partial.size() - eol - 1);
+
+            _goto(-1 * rewindTo, FromHere);
+            partial.erase(eol + 1);
+        }
+
+        buffer.append(partial);
     }
-
-    lf = partial.find('\n');
-    foundLF = (lf != std::string::npos);
-    eol = std::string::npos;
-
-    if (foundCR && foundLF) {
-      eol = ((cr + 1 == lf) || (lf < cr)) ? lf : cr;
-    } else if (foundLF || foundCR) {
-      eol = foundLF ? lf : cr;
-    }
-
-    if (eol != std::string::npos) {
-        const off_t rewindTo = (partial.size() - eol - 1);
-
-        _goto(-1 * rewindTo, FromHere);
-        partial.erase(eol + 1);
-    }
-
-    buffer.append(partial);
-  }
 
   return buffer;
 }
@@ -193,26 +200,29 @@ inline File &File::write(const void *buffer, size_t bufferSize, off_t offset, Re
     amount = ::fwrite(reinterpret_cast<const char *>(buffer), 1, bufferSize, _file);
     PsxAssert(::ferror(_file) == 0);
     PsxAssert(amount == static_cast<off_t>(bufferSize));
+    return *this;
 }
 
 inline File &File::write(const std::string &buffer, off_t offset, Relative relative) {
     write(buffer.data(), buffer.size(), offset, relative);
+    return *this;
 }
 
 inline File &File::flush() {
     ErrnoOnNegative(::fflush(_file));
+    return *this;
 }
 
 inline File File::open(const char *path, Method method, Protection protection) {
     bool readOnly;
 
-    return File(_open(path, method, protection, readOnly), true, readOnly);
+    return own(_open(path, method, protection, readOnly), readOnly);
 }
 
 inline File File::open(const std::string &path, Method method, Protection protection) {
     bool readOnly;
 
-    return File(_open(path.c_str(), method, protection, readOnly), true, readOnly);
+    return own(_open(path.c_str(), method, protection, readOnly), readOnly);
 }
 
 inline File File::reference(FILE *file, bool readOnly) {
@@ -224,15 +234,15 @@ inline File File::own(FILE *file, bool readOnly) {
 }
 
 inline File File::err() {
-    return File(stderr, false, false);
+    return reference(stderr, false);
 }
 
 inline File File::out() {
-    return File(stdout, false, false);
+    return reference(stdout, false);
 }
 
 inline File File::in() {
-    return File(stdin, false, true);
+    return reference(stdin, true);
 }
 
 inline File::File(FILE *file, bool owned, bool readOnly)
@@ -243,7 +253,7 @@ inline void File::_readCore(void *buffer, size_t bufferSize) const {
     auto amount = ::fread(reinterpret_cast<char *>(buffer), 1, bufferSize, _file);
 
     PsxAssert(((fileError = ::ferror(_file)) == 0) || (fileError == EOF));
-    PsxAssert(amount == static_cast<off_t>(bufferSize));
+    PsxAssert(amount == bufferSize);
 }
 
 inline void File::_goto(off_t offset, Relative relative) const {
@@ -266,7 +276,7 @@ inline int File::_whence(File::Relative relative) {
         case FromStart: return SEEK_SET;
         case FromEnd: return SEEK_END;
     }
-    PsxThrow(std::string("Invalid relative: " + std::to_string(relative)));
+    PsxThrow(std::string("Invalid relative: " + std::to_string(relative))); // NOTEST
 }
 
 inline FILE *File::_open(const char *path, File::Method method, File::Protection protection, bool &readOnly) {
@@ -282,7 +292,7 @@ inline FILE *File::_open(const char *path, File::Method method, File::Protection
     }
 
     if (ReadWrite == protection) {
-        ErrnoOnNULL(opened); // tried to open it as write, but could not
+        ErrnoOnNull(opened); // tried to open it as write, but could not
     }
 
     if (nullptr != opened) {
@@ -290,7 +300,7 @@ inline FILE *File::_open(const char *path, File::Method method, File::Protection
         return opened;
     }
 
-    ErrnoOnNULL(opened = ::fopen(path, Binary == method ? "rb" : "r"));
+    ErrnoOnNull(opened = ::fopen(path, Binary == method ? "rb" : "r"));
     readOnly = true;
     return opened;
 }

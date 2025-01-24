@@ -10,6 +10,11 @@ inline void noop() {}
 #define FAIL() failures += 1; printf("FAILED: %s:%d\n", __FILE__, __LINE__)
 #define FAIL_MESSAGE(msg) failures += 1; printf("FAILED: %s:%d\n%s\n", __FILE__, __LINE__, string(msg).c_str())
 #define FAIL_IN_CATCH() failures += 1; printf("FAILED: %s:%d\n%s\n", __FILE__, __LINE__, exception.what())
+#define ASSERT(condition) \
+    if (!(condition)) {                        \
+        failures += 1;                         \
+        printf("FAILED: %s:%d: %s\n", __FILE__, __LINE__, #condition); \
+    } else noop()
 #define ASSERT_IN_CATCH(condition) \
     if (!(condition)) {                        \
         failures += 1;                         \

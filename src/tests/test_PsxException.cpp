@@ -1,8 +1,6 @@
 #include "../inc/PsxException.h"
 #include "test.h"
 
-using namespace std;
-
 void test_if_not_null() {
     int var;
     int *varPtr = &var;
