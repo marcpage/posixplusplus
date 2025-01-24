@@ -100,7 +100,7 @@ START_TESTS
 
     TEST_TRY
         const auto file = psx::io::File::open(__FILE__);
-        ErrnoOnNegative(::fseeko(file.get(), 1, SEEK_SET));
+        ErrnoOnNegative(::fseeko(file, 1, SEEK_SET));
         ASSERT(file.read(7) == "include");
     TEST_CATCH
         FAIL_IN_CATCH();
