@@ -5,7 +5,7 @@
 using namespace psx::io;
 using namespace std;
 
-static void get_coverage(const string &test, const char *logPath, int &executed, int &total) {
+static void get_coverage(const string &test, const char *logPath, int &executed, int &total, string &path) {
     auto log = File::open(logPath);
     string line;
     const string file = "File '";
@@ -15,6 +15,8 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
 
     executed = 0;
     total = 0;
+    path.clear();
+
     /* test == PsxException
         File 'src/inc/PsxException.h'
         Lines executed:84.09% of 44
@@ -25,6 +27,12 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
         line = log.readLine(); // File 'src/inc/PsxException.h'
 
         if ((line.find(file) == 0) && (line.find(test + ".h") != string::npos) ) {
+            line.erase(0, file.size()); // src/inc/PsxException.h'
+
+            auto apostrophe = line.find("'");
+            PsxAssert(apostrophe != string::npos);
+            path = line.substr(0, apostrophe);
+
             line = log.readLine(); // Lines executed:84.09% of 44
             PsxAssert(line.find(linesExecuted) == 0);
 
@@ -51,13 +59,14 @@ int main(const int argc, const char *argv[]) {
     PsxAssert(end != argv[4]);
     string test_name = argv[1];
     int executed = 0, total = 0;
+    string source_path;
 
-    get_coverage(test_name, argv[2], executed, total);
+    get_coverage(test_name, argv[2], executed, total, source_path);
 
     auto percent = executed * 100.0 / total;
     auto type = percent < minimum_percent ? "error" : "warning";
 
-    printf("::%s file=src/inc/%s.h,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", type, test_name.c_str(), executed, total, percent);
+    printf("::%s file=%s,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", type, source_path.c_str(), executed, total, percent);
 
     auto gcov = File::open(argv[3]);
 
