@@ -5,7 +5,7 @@
 
 using namespace std;
 
-inline void noop() {}
+inline void test_noop() {}
 
 #define FAIL() failures += 1; printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::Test failed\n", __FILE__, __LINE__)
 #define FAIL_MESSAGE(msg) failures += 1; printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n", __FILE__, __LINE__, string(msg).c_str())
@@ -14,12 +14,12 @@ inline void noop() {}
     if (!(condition)) {                        \
         failures += 1;                         \
         printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n", __FILE__, __LINE__, #condition); \
-    } else noop()
+    } else test_noop()
 #define ASSERT_IN_CATCH(condition) \
     if (!(condition)) {                        \
         failures += 1;                         \
         printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n%s\n", __FILE__, __LINE__, #condition, exception.what()); \
-    } else noop()
+    } else test_noop()
 
 #define START_TESTS int main(const int argc, const char *argv[]) {int failures = 0;
 #define TEST_TRY try {
