@@ -28,11 +28,13 @@ $(COV_TOOL):$(COV_SOURCE)
 
 define HANDLE_TEST
 $(OUTPUTDIR)/$(1)/$(1):$(SOURCEDIR)/test_$(1).cpp
+	@echo
 	@mkdir -p $(OUTPUTDIR)/$(1)
 	@echo "$(SOURCEDIR)/test_$(1).cpp -> $(OUTPUTDIR)/$(1)/$(1)"
 	@$(CXX) $(SOURCEDIR)/test_$(1).cpp $(CPPFLAGS) -o $(OUTPUTDIR)/$(1)/$(1)
 
 $(1):$(OUTPUTDIR)/$(1)/$(1) $(COV_TOOL)
+	@echo
 	@./$(OUTPUTDIR)/$(1)/$(1)
 	@gcov $(OUTPUTDIR)/$(1)/*.gcno > $(OUTPUTDIR)/$(1)/$(1).log
 	@mv *.gcov $(OUTPUTDIR)/$(1)/
