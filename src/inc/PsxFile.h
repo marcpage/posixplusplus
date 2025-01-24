@@ -60,14 +60,17 @@ private:
 
 
 inline File::File()
-    :_file(nullptr), _owned(false), _readOnly(true) {}
+    :_file(nullptr), _owned(false), _readOnly(true) {printf("Created: %p owned=%d readonly=%d\n", static_cast<void*>(_file), _owned, _readOnly);}
 
 inline File::File(File&& other)
     :_file(other._file), _owned(other._owned), _readOnly(other._readOnly) {
     other._file = nullptr;
+    printf("Moved: %p owned=%d readonly=%d\n", static_cast<void*>(_file), _owned, _readOnly);
+    printf(" From: %p owned=%d readonly=%d\n", static_cast<void*>(other._file), other._owned, other._readOnly);
 }
 
 inline File::~File() {
+    printf("Closing: %p owned=%d readonly=%d\n", static_cast<void*>(_file), _owned, _readOnly);
     if (_owned && _file) {
         ::fclose(_file);
     }
@@ -244,7 +247,7 @@ inline File File::in() {
 }
 
 inline File::File(FILE *file, bool owned, bool readOnly)
-    :_file(file), _owned(owned), _readOnly(readOnly) {}
+    :_file(file), _owned(owned), _readOnly(readOnly) {printf("Created: %p owned=%d readonly=%d\n", static_cast<void*>(_file), _owned, _readOnly);}
 
 inline void File::_readCore(void *buffer, size_t bufferSize) const {
     int fileError;
