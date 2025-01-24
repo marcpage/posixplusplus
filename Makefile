@@ -9,7 +9,7 @@ CPPFLAGS+=-Wswitch -Wundef -Wunreachable-code
 CPPFLAGS+=-Wunused-but-set-parameter -Wwrite-strings -Wctor-dtor-privacy
 CPPFLAGS+=-fno-optimize-sibling-calls -fprofile-arcs -ftest-coverage -O0 -g
 CPPFLAGS+=-fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undefined
-CPPFLAGS+=-fno-inline -fkeep-inline-functions -Wno-ignored-optimization-argument
+CPPFLAGS+=-fno-inline
 CPPFLAGS+=-Winit-self -Wold-style-cast -Woverloaded-virtual
 CPPFLAGS+=-Wsign-conversion -Wsign-promo
 CPPFLAGS+=-Wstrict-overflow=5 -Wswitch-default -Wno-unused

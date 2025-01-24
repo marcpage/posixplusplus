@@ -1,5 +1,6 @@
 #include "../inc/PsxFile.h"
 #include <stdio.h>
+#include <math.h>
 
 using namespace psx::io;
 using namespace std;
