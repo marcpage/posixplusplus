@@ -1,4 +1,4 @@
-#include "../include/PsxException.h"
+#include "../inc/PsxException.h"
 #include "test.h"
 
 using namespace std;

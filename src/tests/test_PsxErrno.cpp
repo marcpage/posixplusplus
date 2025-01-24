@@ -1,4 +1,4 @@
-#include "../include/PsxErrno.h"
+#include "../inc/PsxErrno.h"
 #include "test.h"
 
 using namespace std;
