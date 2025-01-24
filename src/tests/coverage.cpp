@@ -64,7 +64,7 @@ int main(const int argc, const char *argv[]) {
     get_coverage(test_name, argv[2], executed, total, source_path);
 
     auto percent = executed * 100.0 / total;
-    auto type = percent < minimum_percent ? "error" : "warning";
+    auto type = percent < minimum_percent ? "error" : "notice";
 
     printf("::%s file=%s,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", type, source_path.c_str(), executed, total, percent);
 
