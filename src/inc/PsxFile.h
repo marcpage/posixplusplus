@@ -151,7 +151,7 @@ inline std::string &File::readLine(std::string &buffer, off_t offset, Relative r
                         ? static_cast<size_t>(left)
                         : bufferSize;
         read(partial, bufferSize, 0, FromHere);
-        left -= partial.size();
+        left -= static_cast<off_t>(partial.size());
         cr = partial.find('\r');
         foundCR = (cr != std::string::npos);
 
@@ -273,8 +273,8 @@ inline int File::_whence(File::Relative relative) {
         case FromHere: return SEEK_CUR;
         case FromStart: return SEEK_SET;
         case FromEnd: return SEEK_END;
+        default: PsxThrow(std::string("Invalid relative: " + std::to_string(static_cast<int>(relative)))); // NOTEST
     }
-    PsxThrow(std::string("Invalid relative: " + std::to_string(relative))); // NOTEST
 }
 
 inline FILE *File::_open(const char *path, File::Method method, File::Protection protection, bool &readOnly) {
