@@ -17,6 +17,13 @@ SOURCEDIR=src/tests
 OUTPUTDIR=bin
 SOURCES=$(wildcard $(SOURCEDIR)/test_*.cpp)
 TESTS=$(subst test_,,$(basename $(notdir $(SOURCES))))
+COV_TOOL=$(OUTPUTDIR)/coverage
+COV_SOURCE=$(SOURCEDIR)/coverage.cpp
+
+$(COV_TOOL):$(COV_SOURCE)
+	@mkdir -p $(OUTPUTDIR)
+	@echo "$< -> $@"
+	@$(CXX) $< $(CPPFLAGS) -o $@
 
 define HANDLE_TEST
 $(OUTPUTDIR)/$(1)/$(1):$(SOURCEDIR)/test_$(1).cpp
@@ -24,10 +31,11 @@ $(OUTPUTDIR)/$(1)/$(1):$(SOURCEDIR)/test_$(1).cpp
 	@echo "$(SOURCEDIR)/test_$(1).cpp -> $(OUTPUTDIR)/$(1)/$(1)"
 	@$(CXX) $(SOURCEDIR)/test_$(1).cpp $(CPPFLAGS) -o $(OUTPUTDIR)/$(1)/$(1)
 
-$(1):$(OUTPUTDIR)/$(1)/$(1)
+$(1):$(OUTPUTDIR)/$(1)/$(1) $(COV_TOOL)
 	@./$(OUTPUTDIR)/$(1)/$(1)
 	@gcov $(OUTPUTDIR)/$(1)/*.gcno > $(OUTPUTDIR)/$(1)/$(1).log
 	@mv *.gcov $(OUTPUTDIR)/$(1)/
+	$(COV_TOOL) $(1) $(OUTPUTDIR)/$(1)/$(1).log $(OUTPUTDIR)/$(1)/$(1).h.gcov
 	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '#####:' | grep -ve '// NOTEST' || true
 	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '// NOTEST' | grep -ve '#####:' || true
 
