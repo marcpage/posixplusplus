@@ -33,7 +33,6 @@ class Errno : public psx::Exception {
 public:
     Errno(int value, const char *errnoName, const char *file=nullptr, int line=0, const char *function=nullptr) throw();
     Errno(const std::string &message, int value, const char *errnoName, const char *file=nullptr, int line=0, const char *function=nullptr) throw();
-    Errno(const Errno &other);
     virtual const char *name() const;
     int code() const throw();
 
