@@ -13,7 +13,7 @@ CPPFLAGS+=-fsanitize=address -fsanitize-address-use-after-scope -fsanitize=undef
 CPPFLAGS+=-fno-inline
 CPPFLAGS+=-Winit-self -Wold-style-cast -Woverloaded-virtual
 CPPFLAGS+=-Wsign-conversion -Wsign-promo
-CPPFLAGS+=-Wstrict-overflow=5 -Wswitch-default -Wno-unused
+CPPFLAGS+=-Wstrict-overflow=5 -Wswitch-default -Wunused
 SOURCEDIR=src/tests
 OUTPUTDIR=bin
 SOURCES=$(wildcard $(SOURCEDIR)/test_*.cpp)
@@ -36,7 +36,7 @@ $(1):$(OUTPUTDIR)/$(1)/$(1) $(COV_TOOL)
 	@./$(OUTPUTDIR)/$(1)/$(1)
 	@gcov $(OUTPUTDIR)/$(1)/*.gcno > $(OUTPUTDIR)/$(1)/$(1).log
 	@mv *.gcov $(OUTPUTDIR)/$(1)/
-	$(COV_TOOL) $(1) $(OUTPUTDIR)/$(1)/$(1).log $(OUTPUTDIR)/$(1)/$(1).h.gcov $(MINIMUM_CODE_COVERAGE)
+	@$(COV_TOOL) $(1) $(OUTPUTDIR)/$(1)/$(1).log $(OUTPUTDIR)/$(1)/$(1).h.gcov $(MINIMUM_CODE_COVERAGE)
 	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '#####:' | grep -ve '// NOTEST' || true
 	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '// NOTEST' | grep -ve '#####:' || true
 

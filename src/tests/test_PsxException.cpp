@@ -4,12 +4,14 @@
 static void test_if_not_null() {
     int var;
     int *varPtr = &var;
-    PsxThrowIfNull(varPtr);
+    if (false) {}
+    else PsxThrowIfNull(varPtr);
 }
 
 static void test_is_null() {
     int *var = nullptr;
-    PsxThrowIfNull(var);
+    if (false) {}
+    else PsxThrowIfNull(var);
 }
 
 static void test_message() {
@@ -17,11 +19,13 @@ static void test_message() {
 }
 
 static void test_assert_fail() {
-    PsxAssert(1 == 0);
+    if (false) {}
+    else PsxAssert(1 == 0);
 }
 
 static void test_assertion() {
-    PsxAssert(1 == 1);
+    if (false) {}
+    else PsxAssert(1 == 1);
 }
 
 template <typename T>
@@ -94,7 +98,5 @@ START_TESTS
     TEST_CATCH
         ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
     END_TEST_TRY
-
-    // TODO: test PsxThrowIfNull and PsxAssert in if else clauses
 
 END_TESTS

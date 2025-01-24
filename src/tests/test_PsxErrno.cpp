@@ -180,8 +180,98 @@ START_TESTS
         ASSERT_IN_CATCH(exception.code() == -1);
     END_TEST_TRY
 
-    // TODO: throw on negative, null, construct without message
-    // TODO: ErrnoMessageThrow, ErrnoAssert
+    TEST_TRY
+        errno = ENOENT;
+        ErrnoMessageThrow("Bad mojo");
+        FAIL();
+    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+        ASSERT_IN_CATCH(string(exception.what()).find("Bad mojo") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        ErrnoMessageThrow("No error");
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = ENOENT;
+        ErrnoOnNegative(-1);
+        FAIL();
+    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+        ASSERT_IN_CATCH(string(exception.what()).find("-1") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        ErrnoOnNegative(0);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        ErrnoOnNegative(-1);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = ENOENT;
+        int *value = nullptr;
+        ErrnoOnNull(value);
+        FAIL();
+    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+        ASSERT_IN_CATCH(string(exception.what()).find("value") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        auto value = 5;
+        ErrnoOnNull(&value);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        int *value = nullptr;
+        ErrnoOnNull(value);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = ENOENT;
+        if (false) {}
+        else ErrnoAssert(0 == 1);
+        FAIL();
+    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+        ASSERT_IN_CATCH(string(exception.what()).find("0 == 1") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        ErrnoAssert(true);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        errno = 0;
+        ErrnoAssert(false);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
 
 END_TESTS
 

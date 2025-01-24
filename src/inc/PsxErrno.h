@@ -6,19 +6,19 @@
 #include <string.h>
 
 #define ErrnoThrow(name)                                                       \
-  throw psx::err::name##_Errno(#name, __FILE__, __LINE__)
+  throw psx::err::name##_Errno(#name, __FILE__, __LINE__, __func__)
 
 #define ErrnoCodeThrow(errnoCode, message)                                     \
-  psx::err::Errno::_throw(errnoCode, message, __FILE__, __LINE__)
+  psx::err::Errno::_throw(errnoCode, message, __FILE__, __LINE__, __func__)
 
 #define ErrnoMessageThrow(message)                                             \
-  psx::err::Errno::_throw(errno, message, __FILE__, __LINE__)
+  psx::err::Errno::_throw(errno, message, __FILE__, __LINE__, __func__)
 
 #define ErrnoOnNegative(call)                                                  \
-  psx::err::Errno::_throwOnNegative(call, #call, __FILE__, __LINE__)
+  psx::err::Errno::_throwOnNegative(call, #call, __FILE__, __LINE__, __func__)
 
 #define ErrnoOnNull(call)                                                      \
-  psx::err::Errno::_throwOnNull(call, #call, __FILE__, __LINE__)
+  psx::err::Errno::_throwOnNull(call, #call, __FILE__, __LINE__, __func__)
 
 #define ErrnoAssert(condition)                                                 \
   if (!(condition)) {                                                          \
@@ -36,11 +36,11 @@ public:
     virtual const char *name() const;
     int code() const throw();
 
-    static void _throw(int errnoCode, const std::string &message, const char *file, int line);
-    static int _throwOnNegative(const int returnCode, const char *call, const char *file, const int line);
+    static void _throw(int errnoCode, const std::string &message, const char *file, int line, const char *function);
+    static int _throwOnNegative(const int returnCode, const char *call, const char *file, const int line, const char *function);
     
     template <typename T>
-    static T* _throwOnNull(T *returnedPtr, const char *call, const char *file, const int line);
+    static T* _throwOnNull(T *returnedPtr, const char *call, const char *file, const int line, const char *function);
 
 private:
     int _errno;
@@ -53,10 +53,10 @@ private:
     class errno_name##_Errno : public Errno { \
     public: \
         const char *name() const override {return #errno_name;} \
-        explicit errno_name##_Errno(const char *file=nullptr, int line=0) throw() \
-            : Errno(errno_name, #errno_name, file, line) {} \
-        explicit errno_name##_Errno(const std::string &message, const char *file=nullptr, int line=0) throw() \
-            : Errno(message, errno_name, #errno_name, file, line) {} \
+        explicit errno_name##_Errno(const char *file=nullptr, int line=0, const char *func=nullptr) throw() \
+            : Errno(errno_name, #errno_name, file, line, func) {} \
+        explicit errno_name##_Errno(const std::string &message, const char *file=nullptr, int line=0, const char *func=nullptr) throw() \
+            : Errno(message, errno_name, #errno_name, file, line, func) {} \
     };
 
 ErrnoException(E2BIG);
@@ -219,10 +219,10 @@ inline int Errno::code() const throw() {
     return _errno;
 }
 
-inline void Errno::_throw(int errnoCode, const std::string &message, const char *file, int line) {
+inline void Errno::_throw(int errnoCode, const std::string &message, const char *file, int line, const char *function) {
     if (0 != errnoCode) {
         switch (errnoCode) {
-#define ErrnoCaseClass(name) case name: throw name##_Errno(message, file, line)
+#define ErrnoCaseClass(name) case name: throw name##_Errno(message, file, line, function)
             ErrnoCaseClass(E2BIG);
             ErrnoCaseClass(EACCES);
             ErrnoCaseClass(EADDRINUSE);
@@ -375,19 +375,19 @@ inline void Errno::_throw(int errnoCode, const std::string &message, const char 
                 throw Errno(message, errnoCode, "[Unknown]", file, line);
         }
     }
-} // NOTEST
+}
 
-inline int Errno::_throwOnNegative(const int returnCode, const char *call, const char *file, const int line) {
+inline int Errno::_throwOnNegative(const int returnCode, const char *call, const char *file, const int line, const char *function) {
     if (returnCode < 0) {
-        _throw(errno, call, file, line);
+        _throw(errno, call, file, line, function);
     }
     return returnCode;
 }
 
 template <typename T>
-inline T* Errno::_throwOnNull(T *returnedPtr, const char *call, const char *file, const int line) {
+inline T* Errno::_throwOnNull(T *returnedPtr, const char *call, const char *file, const int line, const char *function) {
     if (nullptr == returnedPtr) {
-        _throw(errno, call, file, line);
+        _throw(errno, call, file, line, function);
     }
     return returnedPtr;
 }
