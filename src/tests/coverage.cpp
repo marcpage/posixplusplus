@@ -15,11 +15,16 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
 
     executed = 0;
     total = 0;
+    /* test == PsxException
+        File 'src/inc/PsxException.h'
+        Lines executed:84.09% of 44
+        Creating 'PsxException.h.gcov'
+    */
 
     do {
         line = log.readLine();
 
-        if ((line.find(file) == 0) && (line.find(test) != string::npos) ) {
+        if ((line.find(file) == 0) && (line.find(test + ".h") != string::npos) ) {
             line = log.readLine();
             PsxAssert(line.find(linesExecuted) == 0);
             line.erase(0, linesExecuted.size());
