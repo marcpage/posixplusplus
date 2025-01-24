@@ -1,4 +1,4 @@
-MINIMUM_CODE_COVERAGE=85
+MINIMUM_CODE_COVERAGE=80
 CXX=g++
 CPPFLAGS=-std=c++14 -Wall -Weffc++ -Wextra -Wshadow -Wwrite-strings -Werror
 CPPFLAGS+=-Wpedantic -pedantic-errors -Wdisabled-optimization

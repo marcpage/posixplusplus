@@ -7,18 +7,18 @@ using namespace std;
 
 inline void noop() {}
 
-#define FAIL() failures += 1; printf("FAILED: %s:%d\n", __FILE__, __LINE__)
-#define FAIL_MESSAGE(msg) failures += 1; printf("FAILED: %s:%d\n%s\n", __FILE__, __LINE__, string(msg).c_str())
-#define FAIL_IN_CATCH() failures += 1; printf("FAILED: %s:%d\n%s\n", __FILE__, __LINE__, exception.what())
+#define FAIL() failures += 1; printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::Test failed\n", __FILE__, __LINE__)
+#define FAIL_MESSAGE(msg) failures += 1; printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n", __FILE__, __LINE__, string(msg).c_str())
+#define FAIL_IN_CATCH() failures += 1; printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n", __FILE__, __LINE__, exception.what())
 #define ASSERT(condition) \
     if (!(condition)) {                        \
         failures += 1;                         \
-        printf("FAILED: %s:%d: %s\n", __FILE__, __LINE__, #condition); \
+        printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n", __FILE__, __LINE__, #condition); \
     } else noop()
 #define ASSERT_IN_CATCH(condition) \
     if (!(condition)) {                        \
         failures += 1;                         \
-        printf("FAILED: %s:%d: %s\n%s\n", __FILE__, __LINE__, #condition, exception.what()); \
+        printf("::error file=%s,line=%d,col=1,endColumn=1,title=Test Failure::%s\n%s\n", __FILE__, __LINE__, #condition, exception.what()); \
     } else noop()
 
 #define START_TESTS int main(const int argc, const char *argv[]) {int failures = 0;
