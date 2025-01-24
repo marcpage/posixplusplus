@@ -90,5 +90,21 @@ START_TESTS
         FAIL_IN_CATCH();
     END_TEST_TRY
 
+    TEST_TRY
+        auto file = psx::io::File::open(__FILE__);
+        ErrnoOnNegative(::fseeko(file, 1, SEEK_SET));
+        ASSERT(file.read(7) == "include");
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        const auto file = psx::io::File::open(__FILE__);
+        ErrnoOnNegative(::fseeko(file.get(), 1, SEEK_SET));
+        ASSERT(file.read(7) == "include");
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
 END_TESTS
 

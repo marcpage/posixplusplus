@@ -25,6 +25,10 @@ public:
     File(File&& other);
     virtual ~File();
 
+    operator FILE *();
+    FILE *get() const;
+    FILE *get();
+
     off_t size() const;
     off_t location() const;
     bool writeable() const;
@@ -74,6 +78,18 @@ inline File::~File() {
     _file = nullptr;
     _owned = false;
     _readOnly = true;
+}
+
+inline File::operator FILE *() {
+    return get();
+}
+
+inline FILE *File::get() const {
+    return _file;
+}
+
+inline FILE *File::get() {
+    return _file;
 }
 
 inline off_t File::size() const {
