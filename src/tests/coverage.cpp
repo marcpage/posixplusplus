@@ -61,5 +61,5 @@ int main(const int argc, const char *argv[]) {
 
     auto gcov = File::open(argv[3]);
 
-    return 0;
+    return percent < minimum_percent ? 1 : 0;
 }
