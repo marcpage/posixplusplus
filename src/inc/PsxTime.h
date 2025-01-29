@@ -300,7 +300,7 @@ inline Time::String &Time::format(const String &fmt, String &buffer, Location lo
     location(timeValue, loc); // clears timeValue
     buffer.assign(fmt.length() * 15, '\0');
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wformat-security"
     size = ::strftime(const_cast<char *>(buffer.data()), buffer.length(), fmt.c_str(), &timeValue);
 #pragma GCC diagnostic pop
     buffer.erase(size);
