@@ -237,6 +237,9 @@ inline double Time::seconds_since(const Time &epoch) const {
 
 inline Time &Time::add(double value, Span span) {
     switch(span) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic ignored "-Werror=implicit-fallthrough="
         case Weeks:
             value *= 7.0;
         case Days:
@@ -245,6 +248,7 @@ inline Time &Time::add(double value, Span span) {
             value *= 60.0;
         case Minutes:
             value *= 60.0;
+#pragma GCC diagnostic pop
         case Seconds:
             break;
         default:
@@ -295,7 +299,11 @@ inline Time::String &Time::format(const String &fmt, String &buffer, Location lo
 
     location(timeValue, loc); // clears timeValue
     buffer.assign(fmt.length() * 15, '\0');
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
+#pragma GCC diagnostic ignored "-Werror=format-nonliteral"
     size = ::strftime(const_cast<char *>(buffer.data()), buffer.length(), fmt.c_str(), &timeValue);
+#pragma GCC diagnostic pop
     buffer.erase(size);
     PsxAssert(size != 0 || fmt.size() == 0 || fmt == "%p");
     return buffer;
