@@ -11,11 +11,12 @@ public:
     enum Method { Binary, Text };
     enum Protection { ReadOnly, ReadWrite, TryWrite };
     enum Relative { FromHere, FromStart, FromEnd };
+    typedef int (*CloseFunc)(FILE*);
 
     static File open(const char *path, Method method=Text, Protection protection=ReadOnly);
     static File open(const std::string &path, Method method=Text, Protection protection=ReadOnly);
     static File reference(FILE *file, bool readOnly=false);
-    static File own(FILE *file, bool readOnly=false);
+    static File own(FILE *file, CloseFunc closeFunc=::fclose, bool readOnly=false);
     static File err();
     static File out();
     static File in();
@@ -50,10 +51,10 @@ public:
 
 private:
     FILE *_file;
-    bool _owned;
     bool _readOnly;
+    CloseFunc _close;
 
-    File(FILE *file, bool owned, bool readOnly);
+    File(FILE *file, CloseFunc closeFunc, bool readOnly);
     void _readCore(void *buffer, size_t bufferSize) const;
     void _goto(off_t offset, Relative relative) const;
     void _locationAndSize(off_t &location, off_t &size) const;
@@ -64,19 +65,19 @@ private:
 
 
 inline File::File()
-    :_file(nullptr), _owned(false), _readOnly(true) {}
+    :_file(nullptr), _readOnly(true), _close(nullptr) {}
 
 inline File::File(File&& other)
-    :_file(other._file), _owned(other._owned), _readOnly(other._readOnly) {
+    :_file(other._file), _readOnly(other._readOnly), _close(other._close) {
     other._file = nullptr;
 }
 
 inline File::~File() {
-    if (_owned && _file) {
-        ::fclose(_file);
+    if (_close && _file) {
+        _close(_file);
     }
     _file = nullptr;
-    _owned = false;
+    _close = nullptr;
     _readOnly = true;
 }
 
@@ -235,22 +236,22 @@ inline File File::open(const char *path, Method method, Protection protection) {
     auto readOnly = false;
     auto file = _open(path, method, protection, readOnly);
 
-    return own(file, readOnly);
+    return own(file, ::fclose, readOnly);
 }
 
 inline File File::open(const std::string &path, Method method, Protection protection) {
     bool readOnly = false;
     auto file = _open(path.c_str(), method, protection, readOnly);
 
-    return own(file, readOnly);
+    return own(file, ::fclose, readOnly);
 }
 
 inline File File::reference(FILE *file, bool readOnly) {
-    return File(file, false, readOnly);
+    return File(file, nullptr, readOnly);
 }
 
-inline File File::own(FILE *file, bool readOnly) {
-    return File(file, true, readOnly);
+inline File File::own(FILE *file, CloseFunc closeFunc, bool readOnly) {
+    return File(file, closeFunc, readOnly);
 }
 
 inline File File::err() {
@@ -265,8 +266,8 @@ inline File File::in() {
     return reference(stdin, true);
 }
 
-inline File::File(FILE *file, bool owned, bool readOnly)
-    :_file(file), _owned(owned), _readOnly(readOnly) {}
+inline File::File(FILE *file, CloseFunc closeFunc, bool readOnly)
+    :_file(file), _readOnly(readOnly), _close(closeFunc) {}
 
 inline void File::_readCore(void *buffer, size_t bufferSize) const {
     int fileError;
