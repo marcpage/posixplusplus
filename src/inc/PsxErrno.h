@@ -20,6 +20,9 @@
 #define ErrnoOnNull(call)                                                      \
   psx::Errno::_throwOnNull(call, #call, __FILE__, __LINE__, __func__)
 
+#define ErrnoOnNullMsg(call, message)                                          \
+  psx::Errno::_throwOnNull(call, std::string(#call) + ": " + message, __FILE__, __LINE__, __func__)
+
 #define ErrnoAssert(condition)                                                 \
   if (!(condition)) {                                                          \
     ErrnoCodeThrow(errno, #condition);                                         \
@@ -39,7 +42,7 @@ public:
     static int _throwOnNegative(const int returnCode, const char *call, const char *file, const int line, const char *function);
     
     template <typename T>
-    static T* _throwOnNull(T *returnedPtr, const char *call, const char *file, const int line, const char *function);
+    static T* _throwOnNull(T *returnedPtr, const std::string &call, const char *file, const int line, const char *function);
 
 private:
     int _errno;
@@ -384,7 +387,7 @@ inline int Errno::_throwOnNegative(const int returnCode, const char *call, const
 }
 
 template <typename T>
-inline T* Errno::_throwOnNull(T *returnedPtr, const char *call, const char *file, const int line, const char *function) {
+inline T* Errno::_throwOnNull(T *returnedPtr, const std::string &call, const char *file, const int line, const char *function) {
     if (nullptr == returnedPtr) {
         _throw(errno, call, file, line, function);
     }

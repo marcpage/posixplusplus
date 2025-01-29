@@ -320,7 +320,7 @@ inline FILE *File::_open(const char *path, File::Method method, File::Protection
         return opened;
     }
 
-    ErrnoOnNull(opened = ::fopen(path, Binary == method ? "rb" : "r"));
+    ErrnoOnNullMsg(opened = ::fopen(path, Binary == method ? "rb" : "r"), path);
     readOnly = true;
     return opened;
 }
