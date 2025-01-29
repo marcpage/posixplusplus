@@ -6,7 +6,7 @@ START_TESTS
     TEST_TRY
         ErrnoThrow(E2BIG);
         FAIL();
-    TEST_CATCH_TYPE(psx::err::E2BIG_Errno)
+    TEST_CATCH_TYPE(psx::E2BIG_Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("E2BIG") != string::npos);
         ASSERT_IN_CATCH(string(exception.what()).find(to_string(E2BIG)) != string::npos);
     TEST_CATCH
@@ -164,7 +164,7 @@ START_TESTS
         TEST_TRY
             ErrnoCodeThrow(errors[err], string("code: ") + to_string(err));
             FAIL_MESSAGE(string("code: ") + to_string(err));
-        TEST_CATCH_TYPE(psx::err::Errno)
+        TEST_CATCH_TYPE(psx::Errno)
             ASSERT_IN_CATCH(string(exception.what()).find(string("code: ") + to_string(err)) != string::npos);
             ASSERT_IN_CATCH(string(exception.what()).find(exception.name()) != string::npos);
             ASSERT_IN_CATCH(exception.code() == errors[err]);
@@ -174,7 +174,7 @@ START_TESTS
     TEST_TRY
         ErrnoCodeThrow(-1, string("invalid"));
         FAIL();
-    TEST_CATCH_TYPE(psx::err::Errno)
+    TEST_CATCH_TYPE(psx::Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("invalid") != string::npos);
         ASSERT_IN_CATCH(string(exception.what()).find(exception.name()) != string::npos);
         ASSERT_IN_CATCH(exception.code() == -1);
@@ -184,7 +184,7 @@ START_TESTS
         errno = ENOENT;
         ErrnoMessageThrow("Bad mojo");
         FAIL();
-    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+    TEST_CATCH_TYPE(psx::ENOENT_Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("Bad mojo") != string::npos);
     TEST_CATCH
         FAIL_IN_CATCH();
@@ -201,7 +201,7 @@ START_TESTS
         errno = ENOENT;
         ErrnoOnNegative(-1);
         FAIL();
-    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+    TEST_CATCH_TYPE(psx::ENOENT_Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("-1") != string::npos);
     TEST_CATCH
         FAIL_IN_CATCH();
@@ -226,7 +226,7 @@ START_TESTS
         int *value = nullptr;
         ErrnoOnNull(value);
         FAIL();
-    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+    TEST_CATCH_TYPE(psx::ENOENT_Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("value") != string::npos);
     TEST_CATCH
         FAIL_IN_CATCH();
@@ -253,7 +253,7 @@ START_TESTS
         if (false) {}
         else ErrnoAssert(0 == 1);
         FAIL();
-    TEST_CATCH_TYPE(psx::err::ENOENT_Errno)
+    TEST_CATCH_TYPE(psx::ENOENT_Errno)
         ASSERT_IN_CATCH(string(exception.what()).find("0 == 1") != string::npos);
     TEST_CATCH
         FAIL_IN_CATCH();

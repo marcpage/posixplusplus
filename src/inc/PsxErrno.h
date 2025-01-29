@@ -6,19 +6,19 @@
 #include <string.h>
 
 #define ErrnoThrow(name)                                                       \
-  throw psx::err::name##_Errno(#name, __FILE__, __LINE__, __func__)
+  throw psx::name##_Errno(#name, __FILE__, __LINE__, __func__)
 
 #define ErrnoCodeThrow(errnoCode, message)                                     \
-  psx::err::Errno::_throw(errnoCode, message, __FILE__, __LINE__, __func__)
+  psx::Errno::_throw(errnoCode, message, __FILE__, __LINE__, __func__)
 
 #define ErrnoMessageThrow(message)                                             \
-  psx::err::Errno::_throw(errno, message, __FILE__, __LINE__, __func__)
+  psx::Errno::_throw(errno, message, __FILE__, __LINE__, __func__)
 
 #define ErrnoOnNegative(call)                                                  \
-  psx::err::Errno::_throwOnNegative(call, #call, __FILE__, __LINE__, __func__)
+  psx::Errno::_throwOnNegative(call, #call, __FILE__, __LINE__, __func__)
 
 #define ErrnoOnNull(call)                                                      \
-  psx::err::Errno::_throwOnNull(call, #call, __FILE__, __LINE__, __func__)
+  psx::Errno::_throwOnNull(call, #call, __FILE__, __LINE__, __func__)
 
 #define ErrnoAssert(condition)                                                 \
   if (!(condition)) {                                                          \
@@ -27,7 +27,6 @@
 
 
 namespace psx {
-namespace err {
 
 class Errno : public psx::Exception {
 public:
@@ -400,4 +399,4 @@ inline std::string Errno::_init(S message, const char* errnoName, int value) {
             + std::string(message);
 } // NOTEST
 
-}} // psx::err
+} // psx

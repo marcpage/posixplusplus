@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-using namespace psx::io;
+using namespace psx;
 using namespace std;
 
 static void get_coverage(const string &test, const char *logPath, int &executed, int &total, string &path) {

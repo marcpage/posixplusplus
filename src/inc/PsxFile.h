@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 namespace psx {
-namespace io {
 
 class File {
 public:
@@ -328,4 +327,4 @@ inline FILE *File::_open(const char *path, File::Method method, File::Protection
     
 
 
-}} // namespace psx::io
+} // namespace psx

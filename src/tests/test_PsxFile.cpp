@@ -4,7 +4,7 @@
 START_TESTS
 
     TEST_TRY
-        psx::io::File().write("test");
+        psx::File().write("test");
         FAIL();
     TEST_CATCH_TYPE(psx::Exception)
         ASSERT_IN_CATCH(string(exception.what()).find("!_readOnly") != string::npos);
@@ -13,9 +13,9 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        auto original = psx::io::File::open(__FILE__, psx::io::File::Text,  psx::io::File::ReadOnly);
+        auto original = psx::File::open(__FILE__, psx::File::Text,  psx::File::ReadOnly);
         auto me = std::move(original);
-        auto firstLine = me.readLine(0, psx::io::File::FromHere, 2);
+        auto firstLine = me.readLine(0, psx::File::FromHere, 2);
         auto contents = me.read();
         ASSERT(!me.writeable());
         ASSERT(firstLine.find("#include \"../inc/PsxFile.h\"") == 0);
@@ -33,14 +33,14 @@ START_TESTS
         const string path = "bin/PsxFile/test.dat";
 
         {
-            psx::io::File::open(path, psx::io::File::Text,  psx::io::File::ReadWrite).write("test");
+            psx::File::open(path, psx::File::Text,  psx::File::ReadWrite).write("test");
         }
 
-        const auto contents = psx::io::File::open(path).read();
-        const auto partial_contents = psx::io::File::open(path).read(2, psx::io::File::FromEnd);
-        const auto line = psx::io::File::open(path).readLine();
+        const auto contents = psx::File::open(path).read();
+        const auto partial_contents = psx::File::open(path).read(2, psx::File::FromEnd);
+        const auto line = psx::File::open(path).readLine();
 
-        ASSERT(psx::io::File::open(path).size() == 4);
+        ASSERT(psx::File::open(path).size() == 4);
         ASSERT(contents == "test");
         ASSERT(partial_contents == "st");
         ASSERT(line == "test");
@@ -49,16 +49,16 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        psx::io::File::out().write("testing stdout ... ");
-        psx::io::File::out().flush();
-        psx::io::File::err().write("testing stderr ...\n");
-        psx::io::File::err().flush();
+        psx::File::out().write("testing stdout ... ");
+        psx::File::out().flush();
+        psx::File::err().write("testing stderr ...\n");
+        psx::File::err().flush();
     TEST_CATCH
         FAIL_IN_CATCH();
     END_TEST_TRY
 
     TEST_TRY
-        psx::io::File::in().write("testing stdout ... ");
+        psx::File::in().write("testing stdout ... ");
         FAIL();
     TEST_CATCH_TYPE(psx::Exception)
         ASSERT_IN_CATCH(string(exception.what()).find("!_readOnly") != string::npos);
@@ -66,7 +66,7 @@ START_TESTS
 
     TEST_TRY
         char buffer[8];
-        psx::io::File::open(__FILE__).read(buffer, sizeof(buffer));
+        psx::File::open(__FILE__).read(buffer, sizeof(buffer));
         ASSERT(string(buffer, sizeof(buffer)) == "#include");
     TEST_CATCH
         FAIL_IN_CATCH();
@@ -76,22 +76,22 @@ START_TESTS
         const string path = "bin/PsxFile/test2.dat";
 
         {
-            psx::io::File::open(path, psx::io::File::Text,  psx::io::File::ReadWrite).write("test\r\ntest");
+            psx::File::open(path, psx::File::Text,  psx::File::ReadWrite).write("test\r\ntest");
         }
 
-        ASSERT(psx::io::File::open(path).readLine(0, psx::io::File::FromHere, 1) == "test\r\n");
+        ASSERT(psx::File::open(path).readLine(0, psx::File::FromHere, 1) == "test\r\n");
     TEST_CATCH
         FAIL_IN_CATCH();
     END_TEST_TRY
 
     TEST_TRY
-        ASSERT(psx::io::File::open(__FILE__).move(1).move(2).read(5) == "clude");
+        ASSERT(psx::File::open(__FILE__).move(1).move(2).read(5) == "clude");
     TEST_CATCH
         FAIL_IN_CATCH();
     END_TEST_TRY
 
     TEST_TRY
-        auto file = psx::io::File::open(__FILE__);
+        auto file = psx::File::open(__FILE__);
         ErrnoOnNegative(::fseeko(file, 1, SEEK_SET));
         ASSERT(file.read(7) == "include");
     TEST_CATCH
@@ -99,7 +99,7 @@ START_TESTS
     END_TEST_TRY
 
     TEST_TRY
-        const auto file = psx::io::File::open(__FILE__);
+        const auto file = psx::File::open(__FILE__);
         ErrnoOnNegative(::fseeko(file, 1, SEEK_SET));
         ASSERT(file.read(7) == "include");
     TEST_CATCH
