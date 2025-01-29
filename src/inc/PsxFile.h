@@ -312,7 +312,7 @@ inline FILE *File::_open(const char *path, File::Method method, File::Protection
     }
 
     if (ReadWrite == protection) {
-        ErrnoOnNull(opened); // tried to open it as write, but could not
+        ErrnoOnNullMsg(opened, path); // tried to open it as write, but could not
     }
 
     if (nullptr != opened) {
