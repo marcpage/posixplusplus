@@ -33,6 +33,7 @@ public:
     off_t size() const;
     off_t location() const;
     bool writeable() const;
+    bool endOfFile() const;
 
     const File &moveto(off_t offset, Relative relative=FromStart) const;
     const File &move(off_t offset, Relative relative=FromHere) const;
@@ -111,6 +112,10 @@ inline off_t File::location() const {
 
 inline bool File::writeable() const {
     return !_readOnly;
+}
+
+inline bool File::endOfFile() const {
+    return ::feof(_file) != 0;
 }
 
 inline const File &File::moveto(off_t offset, Relative relative) const {
