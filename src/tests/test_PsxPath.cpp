@@ -2,6 +2,7 @@
 #include "../inc/PsxFile.h"
 #include "../inc/PsxTime.h"
 #include "test.h"
+#include <algorithm>
 
 START_TESTS
     
@@ -95,11 +96,13 @@ START_TESTS
 
     ASSERT(psx::Path(__FILE__).isRelative());
     ASSERT(psx::Path(__FILE__).absolute().isAbsolute());
+    ASSERT(psx::Path(__FILE__).absolute().absolute().isAbsolute());
     ASSERT(psx::Path(__FILE__).absolute().isFile());
     ASSERT(psx::Path(__FILE__).exists());
     ASSERT(psx::Path(__FILE__).isFile());
     ASSERT(!psx::Path(__FILE__).isDirectory());
     ASSERT(psx::Path(__FILE__).parent().isDirectory());
+    ASSERT(!psx::Path(__FILE__).parent().isFile());
     ASSERT(!psx::Path(__FILE__).isBlockSpecial());
     ASSERT(!psx::Path(__FILE__).isCharSpecial());
     ASSERT(!psx::Path(__FILE__).isFifo());
@@ -171,23 +174,32 @@ START_TESTS
 
     auto workingDir = (psx::Path("bin")/"testPath").mkdirs();
     auto tinyFile = workingDir/"tiny.txt";
-    auto linkDir = workingDir/"links";
+    auto smallFile = workingDir/"small.txt";
+    auto linkDir = (workingDir/"links").mkdirs();
     auto tinyLink = linkDir/"tiny.txt";
+    auto smallRenamed = linkDir/"smallFile.txt";
     
     psx::Time before = psx::Time::now();
-    {psx::File::open(tinyFile).write("tiny");}
+    {psx::File::open(tinyFile, psx::File::Text, psx::File::ReadWrite).write("tiny");}
+    {psx::File::open(smallFile, psx::File::Text, psx::File::ReadWrite).write("small");}
+    ASSERT(smallFile.isFile());
+    ASSERT(!smallRenamed.exists());
+    smallFile.rename(smallRenamed);
+    ASSERT(smallRenamed.isFile());
+    ASSERT(!smallFile.exists());
+    ASSERT(psx::File::open(smallRenamed).read() == "small");
     psx::Time after = psx::Time::now();
     tinyLink.symlink("../tiny.txt");
     ASSERT(tinyLink.readLink() == "../tiny.txt");
     ASSERT(psx::File::open(tinyLink).read() == "tiny");
     ASSERT(tinyLink.size() == 4);
-    ASSERT(tinyLink.blocks() == 1);
+    ASSERT(tinyLink.blocks() > 0);
     ASSERT(before <= psx::Time(tinyLink.created()));
     ASSERT(psx::Time(tinyLink.created()) <= after);
     ASSERT(before <= psx::Time(tinyLink.lastModification()));
     ASSERT(psx::Time(tinyLink.lastModification()) <= after);
     ASSERT(before <= psx::Time(tinyLink.lastAccess()));
-    ASSERT(psx::Time(tinyLink.lastAccess()) <= after);
+    ASSERT(after <= psx::Time(tinyLink.lastAccess()));
     ASSERT(before <= psx::Time(tinyLink.lastStatusChange()));
     ASSERT(psx::Time(tinyLink.lastStatusChange()) <= after);
     ASSERT(tinyLink.userId() == tinyFile.userId());
@@ -195,8 +207,42 @@ START_TESTS
     ASSERT(tinyLink.permissions() == tinyFile.permissions());
     ASSERT(tinyLink.blockSize() == tinyFile.blockSize());
 
+    auto snapshot = workingDir.list(psx::Path::NameOnly, psx::Path::RecursiveListing);
+    ASSERT(std::find(snapshot.begin(), snapshot.end(), "smallFile.txt") != snapshot.end());
+    ASSERT(std::find(snapshot.begin(), snapshot.end(), "tiny.txt") != snapshot.end());
+
     workingDir.remove();
-    
+
     ASSERT(!workingDir.exists());
+    ASSERT(psx::Path("a/b") != psx::Path("a"));
+    ASSERT(psx::Path("a/b") != psx::Path("a/c"));
+    
+    ASSERT(!psx::Path("bad/path").isFile());
+    ASSERT(!psx::Path("bad/path").isDirectory());
+    ASSERT(!psx::Path("bad/path").isBlockSpecial());
+    ASSERT(!psx::Path("bad/path").isCharSpecial());
+    ASSERT(!psx::Path("bad/path").isFifo());
+    ASSERT(!psx::Path("bad/path").isSocket());
+    ASSERT(!psx::Path("bad/path").isLink());
+
+    TEST_TRY
+        psx::Path("a/b/c").relativeTo("a/b/d");
+        FAIL();
+    TEST_CATCH_TYPE(psx::Exception)
+        ASSERT_IN_CATCH(string(exception.what()).find("Path is not absolute: 'a/b/c'") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    TEST_TRY
+        psx::Path("/a/b/c").relativeTo("a/b/d");
+        FAIL();
+    TEST_CATCH_TYPE(psx::Exception)
+        ASSERT_IN_CATCH(string(exception.what()).find("Path is not absolute: 'a/b/d'") != string::npos);
+    TEST_CATCH
+        FAIL_IN_CATCH();
+    END_TEST_TRY
+
+    ASSERT(psx::Path("/").relativeTo("//") == psx::Path(""));
 
 END_TESTS

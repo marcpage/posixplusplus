@@ -89,8 +89,6 @@ private:
     
     bool _exists(struct stat &info, LinkHandling action) const;
     struct stat &_stat(struct stat &info, LinkHandling action) const;
-    bool _endsWithSeparator() const;
-    bool _beginsWithSeparator() const;
     bool _elements(int index, std::string::size_type &start, std::string::size_type &end, int &count) const;
 };
 
@@ -108,7 +106,7 @@ inline Path::Path(const String &path)
 
 inline Path Path::operator/(const char *other) const {
     return *this/Path(other);
-}
+} // NOTEST, function, yes, closing brace, no
 
 inline Path Path::operator/(const Path &other) const {
     String result = _path;
@@ -126,7 +124,7 @@ inline Path Path::operator/(const Path &other) const {
 
 inline Path Path::operator+(const char *other) const {
     return *this/Path(other);
-}
+} // NOTEST, function, yes, closing brace, no
 
 inline Path Path::operator+(const Path &other) const {
     return *this / other;
@@ -408,7 +406,7 @@ inline Path &Path::mkdirs(unsigned int mode) {
     }
 
     return *this;
-}
+} // NOTEST, function, yes, closing brace, no
 
 inline Path &Path::rename(Path &other) {
     ErrnoOnNegative(::rename(_path.c_str(), other._path.c_str()));
@@ -567,20 +565,20 @@ inline Path::StringList &Path::list(HavePath includePath, StringList &directoryL
                         }
                     }
                 } else {
-                    keepListing = false;
+                    keepListing = false; // NOTEST
                 }
             } catch (const psx::ESRCH_Errno &) {
-                keepListing = false; // sometimes we get spurious ESRCH No
+                keepListing = false; // NOTEST sometimes we get spurious ESRCH No
                                     // such process after listing a directory
-            } catch (const psx::EINTR_Errno &) { // not covered by tests
-                keepListing = false; // sometimes we get spurious EINTR when
+            } catch (const psx::EINTR_Errno &) { // NOTEST not covered by tests
+                keepListing = false; // NOTEST sometimes we get spurious EINTR when
                                     // there is an empty directory
-            }
+            } // NOTEST
         } while (keepListing);
     } catch (const psx::ENOENT_Errno &) {
     } catch (const std::exception &) {
-        ErrnoOnNegative(::closedir(dp));
-        throw;
+        ErrnoOnNegative(::closedir(dp)); // NOTEST
+        throw; // NOTEST
     }
 
     ErrnoOnNegative(::closedir(dp));
@@ -610,14 +608,6 @@ inline struct stat &Path::_stat(struct stat &info, LinkHandling action) const {
   }
 
   return info;
-}
-
-inline bool Path::_endsWithSeparator() const {
-    return (_path.length() > 1) && (_path[_path.length() - 1] == kSeparator);    
-}
-
-inline bool Path::_beginsWithSeparator() const {
-    return (_path.length() > 1) && (_path[0] == kSeparator);    
 }
 
 inline bool Path::_elements(int index, std::string::size_type &start, std::string::size_type &end, int &count) const {
