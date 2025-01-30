@@ -194,6 +194,8 @@ START_TESTS
     ASSERT(psx::File::open(tinyLink).read() == "tiny");
     ASSERT(tinyLink.size() == 4);
     ASSERT(tinyLink.blocks() > 0);
+    printf("before = %0.9f\n", before.seconds_since(psx::Time::epoch()));
+    printf("created = %0.9f\n",psx::Time(tinyLink.created()).seconds_since(psx::Time::epoch()));
     ASSERT(before <= psx::Time(tinyLink.created()));
     ASSERT(psx::Time(tinyLink.created()) <= after);
     ASSERT(before <= psx::Time(tinyLink.lastModification()));
