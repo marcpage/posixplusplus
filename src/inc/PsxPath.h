@@ -316,7 +316,7 @@ inline timespec Path::lastAccess(LinkHandling action) const {
 #if defined(__APPLE__)
     return _stat(info, action).st_atimespec;
 #else
-    return _stat(info, action).st_atime;
+    return _stat(info, action).st_atim;
 #endif
 }
 
@@ -326,7 +326,7 @@ inline timespec Path::lastModification(LinkHandling action) const {
 #if defined(__APPLE__)
     return _stat(info, action).st_mtimespec;
 #else
-    return _stat(info, action).st_mtime;
+    return _stat(info, action).st_mtim;
 #endif
 }
 
@@ -336,7 +336,7 @@ inline timespec Path::lastStatusChange(LinkHandling action) const {
 #if defined(__APPLE__)
     return _stat(info, action).st_ctimespec;
 #else
-    return _stat(info, action).st_ctime;
+    return _stat(info, action).st_ctim;
 #endif
 }
 
@@ -346,7 +346,7 @@ inline timespec Path::created(LinkHandling action) const {
 #if defined(__APPLE__)
     return _stat(info, action).st_birthtimespec;
 #else
-    return _stat(info, action).st_mtime;
+    return _stat(info, action).st_mtim;
 #endif
 }
 
