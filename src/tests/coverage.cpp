@@ -83,7 +83,7 @@ static void parse_gcov(const string &path) {
         const auto firstField = line.find(":"); // status
         if (firstField != string::npos) {
             printf("WHAT: %s\n", line.c_str());
-            continue
+            continue;
         }
         PsxAssert(firstField != string::npos);
         const auto secondField = line.find(":", firstField + 1); // line number
