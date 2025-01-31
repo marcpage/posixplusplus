@@ -70,7 +70,9 @@ inline File::File()
 
 inline File::File(File&& other)
     :_file(other._file), _readOnly(other._readOnly), _close(other._close) {
-    other._file = nullptr;
+    if (this != &other) {
+        other._file = nullptr;
+    }
 }
 
 inline File::~File() {

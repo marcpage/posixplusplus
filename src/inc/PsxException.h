@@ -12,6 +12,9 @@
         PsxThrow(std::string(#variable).append(" == nullptr"));              \
     } else psx::noop()
 
+#define ExceptionOnNull(call)                                                \
+  psx::Errno::_throwOnNull(call, #call, __FILE__, __LINE__, __func__)
+
 #define PsxAssert(condition)                                                 \
     if (!(condition)) {                                                      \
         PsxThrow(#condition);                                                \
@@ -28,6 +31,9 @@ public:
     Exception(const Exception &other);
     Exception &operator=(const Exception &other);
     virtual const char *what() const throw();
+
+    template <typename T>
+    static T* _throwOnNull(T *returnedPtr, const std::string &call, const char *file, const int line, const char *function);
 
 private:
     using Str = std::string;
@@ -76,6 +82,14 @@ inline const char *Exception::what() const throw() {
         return _message->c_str();
     }
     return "Unable to allocate message string"; // NOTEST
+}
+
+template <typename T>
+inline T* Exception::_throwOnNull(T *returnedPtr, const std::string &call, const char *file, const int line, const char *function) {
+    if (nullptr == returnedPtr) {
+        throw psx::Exception(call + " == nullptr", file, line, function);
+    }
+    return returnedPtr;
 }
 
 template <class S>
