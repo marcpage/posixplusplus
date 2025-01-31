@@ -104,6 +104,8 @@ static void parse_gcov(const string &path) {
 
         if (unexecuted && !empty && !marked && !preprocessor && !commented && !templat) {
             printf("%s:%s\n", lineNumber.c_str(), trim(line.substr(secondField + 1), "\r\n").c_str());
+        } else if (!unexecuted && marked) {
+            printf(">>>%s:%s\n", lineNumber.c_str(), trim(line.substr(secondField + 1), "\r\n").c_str());
         }
 
 
