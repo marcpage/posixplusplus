@@ -245,4 +245,14 @@ START_TESTS
 
     ASSERT(psx::Path("/").relativeTo("//") == psx::Path(""));
     printf("mount: '%s'\n", psx::Path(__FILE__).mount().get().c_str());
+
+    struct statvfs info;
+    
+    psx::Path(__FILE__).info(info);
+    auto total = info.f_blocks * info.f_frsize;
+    auto available = info.f_bfree * info.f_frsize;
+    auto used = total - available;
+    auto usedPercentage = 100.0 * used / total;
+    printf("Used: %0.1f GB of %0.1f GB total %0.1f%%\n", used/1024.0/1024.0/1024.0, total/1024.0/1024.0/1024.0, usedPercentage);
+
 END_TESTS

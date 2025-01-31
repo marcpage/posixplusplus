@@ -76,8 +76,8 @@ inline FileDescriptor FileDescriptor::out() {
     return reference(STDOUT_FILENO);
 }
 
-inline FileDescriptor FileDescriptor::in() {
-    return reference(STDIN_FILENO);
+inline FileDescriptor FileDescriptor::in() { // NOTEST
+    return reference(STDIN_FILENO); // NOTEST
 }
 
 inline FileDescriptor::FileDescriptor()
