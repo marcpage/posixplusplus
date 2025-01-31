@@ -116,4 +116,4 @@ inline bool Library::_attempt(const String &name, int flags, String &error) {
     return true;
 }
 
-}
+} // namespace psx

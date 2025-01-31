@@ -96,4 +96,4 @@ inline Trace::String Trace::stripPrefix(const String &line) {
     return line;
 }
 
-}
+} // namespace psx

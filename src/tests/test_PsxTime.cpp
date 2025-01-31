@@ -40,9 +40,9 @@ START_TESTS
     ASSERT(psx::Time::now() - psx::Time(now) < 1.0);
 
     struct timeval timeValue;
-    ErrnoOnNegative(::gettimeofday(&timeValue, NULL));
+    ErrnoOnNegative(::gettimeofday(&timeValue, nullptr));
     ASSERT(static_cast<timeval>(psx::Time::now()).tv_sec == timeValue.tv_sec);
-    ErrnoOnNegative(::gettimeofday(&timeValue, NULL));
+    ErrnoOnNegative(::gettimeofday(&timeValue, nullptr));
     ASSERT(psx::Time::now() - psx::Time(timeValue) < 1.0);
 
     timespec timespecValue, timespecValue2;

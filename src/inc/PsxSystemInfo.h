@@ -65,4 +65,4 @@ inline SystemInfo::String SystemInfo::architecture() {
 }
 
 
-}
+} // namespace psx

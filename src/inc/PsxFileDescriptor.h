@@ -159,4 +159,4 @@ inline FileDescriptor &FileDescriptor::write(const String &data) {
     return *this;
 }
 
-}
+} // namespace psx

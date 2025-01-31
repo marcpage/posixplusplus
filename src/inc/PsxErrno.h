@@ -402,4 +402,4 @@ inline std::string Errno::_init(S message, const char* errnoName, int value) {
             + std::string(message);
 } // NOTEST
 
-} // psx
+} // namespace psx

@@ -672,5 +672,4 @@ inline bool Path::_elements(int index, std::string::size_type &start, std::strin
     return false;
 }
 
-
 } // namespace psx
