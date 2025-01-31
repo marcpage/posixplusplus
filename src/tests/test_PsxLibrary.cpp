@@ -2,20 +2,17 @@
 #include "test.h"
 
 START_TESTS
+    typedef double (*double_filter)(double);
 
-    typedef const char *(*version)();
-    typedef pid_t (*get_pid)();
-
-    auto z = psx::Library::open("c.so.6");
+    auto z = psx::Library::open("m");
     auto z2 = std::move(z);
 
-    printf("pid = %d\n", int(z2.load<get_pid>("getpid")()));
-    ASSERT(z2.load<get_pid>("getpid")() != 0);
+    printf("ceil(0.6) = %0.1f\n", z2.load<double_filter>("ceil")(0.6));
     ASSERT(z2.valid());
     ASSERT(!z.valid());
 
     TEST_TRY
-        z2.load<version>("badfunc");
+        z2.load<double_filter>("badfunc");
         FAIL();
     TEST_CATCH_TYPE(psx::Exception)
         ASSERT_IN_CATCH(string(exception.what()).find("badfunc not found:") != string::npos);
