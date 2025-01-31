@@ -82,11 +82,15 @@ static void parse_gcov(const string &path) {
         
         const auto firstField = line.find(":"); // status
         if (firstField == string::npos) {
-            printf("WHAT: %s\n", line.c_str());
+            printf("WHAT1: %s\n", line.c_str());
             continue;
         }
         PsxAssert(firstField != string::npos);
         const auto secondField = line.find(":", firstField + 1); // line number
+        if (secondField == string::npos) {
+            printf("WHAT2: %s\n", line.c_str());
+            continue;
+        }
         PsxAssert(secondField != string::npos);
         auto type = trim(line.substr(0, firstField));
         auto lineNumber = trim(line.substr(firstField+1, secondField - firstField - 1));
