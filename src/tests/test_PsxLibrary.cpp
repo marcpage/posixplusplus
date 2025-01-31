@@ -3,8 +3,13 @@
 
 START_TESTS
     typedef double (*double_filter)(double);
+#if defined(__linux__)
+    static const char * const library = "m.so.6";
+#elif defined(__APPLE__)
+    static const char * const library = "m";
+#endif
 
-    auto z = psx::Library::open("m");
+    auto z = psx::Library::open(library);
     auto z2 = std::move(z);
 
     printf("ceil(0.6) = %0.1f\n", z2.load<double_filter>("ceil")(0.6));
