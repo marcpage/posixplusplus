@@ -39,8 +39,6 @@ $(1):$(OUTPUTDIR)/$(1)/$(1) $(COV_TOOL)
 	@gcov $(OUTPUTDIR)/$(1)/*.gcno > $(OUTPUTDIR)/$(1)/$(1).log
 	@mv *.gcov $(OUTPUTDIR)/$(1)/
 	@$(COV_TOOL) $(1) $(OUTPUTDIR)/$(1)/$(1).log $(OUTPUTDIR)/$(1)/$(1).h.gcov $(MINIMUM_CODE_COVERAGE)
-	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '#####:' | grep -ve '// NOTEST' || true
-	@cat $(OUTPUTDIR)/$(1)/$(1).h.gcov | grep -e '// NOTEST' | grep -ve '#####:' | grep -ve '=====' || true
 
 endef
 
