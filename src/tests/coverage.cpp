@@ -51,6 +51,59 @@ static void get_coverage(const string &test, const char *logPath, int &executed,
     } while(line.size() > 0);
 }
 
+static string trim(const string &value, const char *set=" \t\r\n") {
+    auto trimmed = value;
+    const auto first = value.find_first_not_of(set);
+
+    if (first == string::npos) {
+        trimmed.clear();
+        return trimmed;
+    }
+
+    trimmed.erase(0, first);
+
+    const auto last = trimmed.find_last_not_of(set);
+    PsxAssert(last != string::npos);
+
+    trimmed.erase(last + 1);
+    return trimmed;
+}
+
+static void parse_gcov(const string &path) {
+    auto gcov = psx::File::open(path);
+    bool seen_code_yet = false;
+
+    while (!gcov.endOfFile()) {
+        auto line = gcov.readLine();
+        
+        if (line.size() == 0) {
+            break;
+        }
+        
+        const auto firstField = line.find(":"); // status
+        PsxAssert(firstField != string::npos);
+        const auto secondField = line.find(":", firstField + 1); // line number
+        PsxAssert(secondField != string::npos);
+        auto type = trim(line.substr(0, firstField));
+        auto lineNumber = trim(line.substr(firstField+1, secondField - firstField - 1));
+        auto code = trim(line.substr(secondField + 1), " \t\r\n};");
+        
+        seen_code_yet = seen_code_yet || (type != "-" && code.find("class") != 0);
+        const auto unexecuted = (type[0] == '#') || (type[0] == '=') || (seen_code_yet && type == "-");
+        const auto empty = code.size() == 0;
+        const auto marked = code.find("// NOTEST") != string::npos;
+        const auto preprocessor = code[0] == '#';
+        const auto commented = code.find("//") == 0;
+        const auto templat = code.find("template") == 0;
+
+        if (unexecuted && !empty && !marked && !preprocessor && !commented && !templat) {
+            printf("%s:%s\n", lineNumber.c_str(), trim(line.substr(secondField + 1), "\r\n").c_str());
+        }
+
+
+    }
+}
+
 int main(const int argc, const char *argv[]) {
     const auto number_of_arguments = argc - 1;
     PsxAssert(number_of_arguments == 4);
@@ -68,9 +121,7 @@ int main(const int argc, const char *argv[]) {
 
     printf("::%s file=%s,line=1,col=1,endColumn=1,title=Code Coverage::%d lines executed out of %d (%0.2f%%)\n", type, source_path.c_str(), executed, total, percent);
 
-    auto gcov = File::open(argv[3]);
-
-    // TODO: parse gcov to report lines that are not covered
+    parse_gcov(argv[3]);
 
     return percent < minimum_percent ? 1 : 0;
 }

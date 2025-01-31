@@ -24,7 +24,7 @@ public:
 
     File();
     File(File&& other);
-    virtual ~File();
+    virtual ~File() throw();
 
     operator FILE *() const;
     operator FILE *();
@@ -75,10 +75,11 @@ inline File::File(File&& other)
     :_file(other._file), _readOnly(other._readOnly), _close(other._close) {
     if (this != &other) {
         other._file = nullptr;
+        other._close = nullptr;
     }
 }
 
-inline File::~File() {
+inline File::~File() throw() {
     if (_close && _file) {
         _close(_file);
     }
@@ -240,7 +241,7 @@ inline std::string &File::readToEnd(std::string &buffer, const size_t blocks) co
     }
 
     return buffer;
-}
+} // NOTEST
 
 inline std::string File::readToEnd(const size_t blocks) const {
     std::string buffer;

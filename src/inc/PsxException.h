@@ -23,8 +23,6 @@
 
 namespace psx {
 
-inline void noop() {}
-
 class Exception : public std::exception {
 public:
     explicit Exception(const char *message, const char *file=nullptr, int line=0, const char *function=nullptr) throw();
@@ -130,5 +128,7 @@ inline Exception::StrPtr Exception::_init(S message, const char *file, int line,
 
     return StrPtr(); // NOTEST
 }
+
+inline void noop() {}
 
 } // namespace psx

@@ -23,7 +23,7 @@ public:
 
     Library();
     Library(Library&& other);
-    virtual ~Library();
+    virtual ~Library() throw();
 
 private:
     void *_library;    
@@ -98,7 +98,7 @@ inline Library::Library(Library&& other)
     }
 }
 
-inline Library::~Library() {
+inline Library::~Library() throw() {
     if (_library) {
         ::dlclose(_library);
     }

@@ -244,5 +244,5 @@ START_TESTS
     END_TEST_TRY
 
     ASSERT(psx::Path("/").relativeTo("//") == psx::Path(""));
-
+    printf("mount: '%s'\n", psx::Path(__FILE__).mount().get().c_str());
 END_TESTS

@@ -86,11 +86,11 @@ private:
     static timespec _init(int year, Month month, int day, int hour24, int minutes, double seconds, Location location);
     static int _ampm_to_hour24(int hour, CivilianHour ampm);
     template<typename S>
-    static void clear(S &s);
+    static void _memclear(S &s);
 };
 
 template<typename S>
-inline void Time::clear(S &s) {
+inline void Time::_memclear(S &s) {
     ::memset(&s, 0, sizeof(s));
 }
 
@@ -160,7 +160,7 @@ inline Time::operator time_t() const {
 
 inline Time::operator timeval() const {
     struct timeval timeValue;
-    clear(timeValue);
+    _memclear(timeValue);
     return value(timeValue);
 }
 
@@ -258,14 +258,14 @@ inline Time &Time::add(double value, Span span) {
 }
 
 inline tm &Time::gmt(tm &time) const {
-    clear(time);
+    _memclear(time);
     const time_t value = _time.tv_sec;
     PsxThrowIfNull(::gmtime_r(&value, &time));
     return time;
 }
 
 inline tm &Time::local(tm &time) const {
-    clear(time);
+    _memclear(time);
     const time_t value = _time.tv_sec;
     PsxThrowIfNull(::localtime_r(&value, &time));
     return time;
@@ -316,7 +316,7 @@ inline Time::String Time::format(const String &fmt, Location location) const {
 
 inline timespec Time::_init(tm &time, double fractionalSeconds, Location location) {
     timespec spec;
-    clear(spec);
+    _memclear(spec);
     constexpr auto kNanosecondsPerSecond = 1000000000.0;
     PsxAssert(fractionalSeconds < 1.0);
     PsxAssert(fractionalSeconds >= 0.0);
@@ -329,7 +329,7 @@ inline timespec Time::_init(tm &time, double fractionalSeconds, Location locatio
 
 inline timespec Time::_init(int year, Month month, int day, int hour24, int minutes, double seconds, Location location) {
     struct tm date;
-    clear(date);
+    _memclear(date);
     const double wholeSeconds = ::floor(seconds);
 
     date.tm_year = year - 1900;

@@ -8,6 +8,8 @@
 #include <string>
 #include <sys/param.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <fstab.h>
 #include <unistd.h>
 #include <string>
 #include <vector>
@@ -36,7 +38,10 @@ public:
     String operator[](int index) const;
     int count() const;
     operator String() const;
+    const String &get() const;
 
+    struct stat &info(struct stat &info, LinkHandling action=WorkOnLinkTarget) const;
+    struct statvfs &info(struct statvfs &info) const;
     bool exists(LinkHandling action=WorkOnLinkTarget) const;
     bool isDirectory(LinkHandling action=WorkOnLinkTarget) const;
     bool isFile(LinkHandling action=WorkOnLinkTarget) const;
@@ -71,6 +76,7 @@ public:
     Path &rename(Path &other);
     const Path &symlink(const char *contents) const;
     
+    Path mount() const;
     Path relativeTo(const Path &other) const;
     Path relativeTo(const char *other) const;
     Path absolute(const Path &from=working()) const;
@@ -88,7 +94,6 @@ private:
     static const char kSeparator = '/';
     
     bool _exists(struct stat &info, LinkHandling action) const;
-    struct stat &_stat(struct stat &info, LinkHandling action) const;
     bool _elements(int index, std::string::size_type &start, std::string::size_type &end, int &count) const;
 };
 
@@ -174,6 +179,10 @@ inline int Path::count() const {
 }
 
 inline Path::operator String() const {
+    return _path;
+}
+
+inline const Path::String &Path::get() const {
     return _path;
 }
 
@@ -275,97 +284,97 @@ inline Path::String Path::readLink() const {
 }
 
 inline dev_t Path::device(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_dev;
+    return info(item_info, action).st_dev;
 }
 
 inline ino_t Path::inode(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_ino;
+    return info(item_info, action).st_ino;
 }
 
 inline mode_t Path::permissions(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_mode;
+    return info(item_info, action).st_mode;
 }
 
 inline nlink_t Path::links(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_nlink;
+    return info(item_info, action).st_nlink;
 }
 
 inline uid_t Path::userId(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_uid;
+    return info(item_info, action).st_uid;
 }
 
 inline gid_t Path::groupId(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_gid;
+    return info(item_info, action).st_gid;
 }
 
 inline timespec Path::lastAccess(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
 #if defined(__APPLE__)
-    return _stat(info, action).st_atimespec;
+    return info(item_info, action).st_atimespec;
 #else
-    return _stat(info, action).st_atim;
+    return info(item_info, action).st_atim;
 #endif
 }
 
 inline timespec Path::lastModification(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
 #if defined(__APPLE__)
-    return _stat(info, action).st_mtimespec;
+    return info(item_info, action).st_mtimespec;
 #else
-    return _stat(info, action).st_mtim;
+    return info(item_info, action).st_mtim;
 #endif
 }
 
 inline timespec Path::lastStatusChange(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
 #if defined(__APPLE__)
-    return _stat(info, action).st_ctimespec;
+    return info(item_info, action).st_ctimespec;
 #else
-    return _stat(info, action).st_ctim;
+    return info(item_info, action).st_ctim;
 #endif
 }
 
 inline timespec Path::created(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
 #if defined(__APPLE__)
-    return _stat(info, action).st_birthtimespec;
+    return info(item_info, action).st_birthtimespec;
 #else
-    return _stat(info, action).st_mtim;
+    return info(item_info, action).st_mtim;
 #endif
 }
 
 inline off_t Path::size(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_size;
+    return info(item_info, action).st_size;
 }
 
 inline off_t Path::blocks(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_blocks;
+    return info(item_info, action).st_blocks;
 }
 
 inline off_t Path::blockSize(LinkHandling action) const {
-    struct stat info;
+    struct stat item_info;
 
-    return _stat(info, action).st_blksize;
+    return info(item_info, action).st_blksize;
 }
 
 inline void Path::unlink() {
@@ -416,6 +425,23 @@ inline Path &Path::rename(Path &other) {
 inline const Path &Path::symlink(const char *contents) const {
     ErrnoOnNegative(::symlink(contents, _path.c_str()));
     return *this;
+}
+
+inline Path Path::mount() const {
+    auto filesystem = device();
+    Path found;
+
+    PsxAssert(::setfsent());
+
+    while (auto fstab = ::getfsent()) {
+        auto file = Path(fstab->fs_file);
+
+        if (file.device() == filesystem) {
+            found = file;
+        }
+    }
+    ::endfsent();
+    return found;
 }
 
 inline Path Path::relativeTo(const Path &other) const {
@@ -590,9 +616,9 @@ inline Path::StringList &Path::list(HavePath includePath, StringList &directoryL
     return directoryListing;
 }
 
-inline bool Path::_exists(struct stat &info, LinkHandling action) const {
+inline bool Path::_exists(struct stat &item_info, LinkHandling action) const {
     try {
-        _stat(info, action);
+        info(item_info, action);
     } catch (const psx::ENOENT_Errno &) {
         return false;
     }
@@ -600,14 +626,19 @@ inline bool Path::_exists(struct stat &info, LinkHandling action) const {
     return true;
 }
 
-inline struct stat &Path::_stat(struct stat &info, LinkHandling action) const {
-  if (WorkOnLink == action) {
-    ErrnoOnNegative(::lstat(_path.c_str(), &info));
-  } else {
-    ErrnoOnNegative(::stat(_path.c_str(), &info));
-  }
+inline struct stat &Path::info(struct stat &f_info, LinkHandling action) const {
+    if (WorkOnLink == action) {
+        ErrnoOnNegative(::lstat(_path.c_str(), &f_info));
+    } else {
+        ErrnoOnNegative(::stat(_path.c_str(), &f_info));
+    }
 
-  return info;
+    return f_info;
+}
+
+inline struct statvfs &Path::info(struct statvfs &fs_info) const {
+    ErrnoOnNegative(::statvfs(_path.c_str(), &fs_info));
+    return fs_info;
 }
 
 inline bool Path::_elements(int index, std::string::size_type &start, std::string::size_type &end, int &count) const {
