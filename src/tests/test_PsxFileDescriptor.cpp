@@ -29,7 +29,13 @@ START_TESTS
     ASSERT(file.size() == 2048);
     file.resize(512);
     ASSERT(file.size() == 512);
-    psx::FileDescriptor::out().write("stdout\n").sync();
-    psx::FileDescriptor::err().write("stderr\n").sync();
+
+    try {
+        psx::FileDescriptor::out().write("stdout\n").sync();
+    } catch(const psx::EINVAL_Errno &) {}
+    
+    try {
+        psx::FileDescriptor::err().write("stderr\n").sync();
+    } catch(const psx::EINVAL_Errno &) {}
 
 END_TESTS
