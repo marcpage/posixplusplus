@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PsxTrace.h"
 #include <exception>
 #include <string>
 #include <memory>
@@ -96,24 +97,34 @@ template <class S>
 inline Exception::StrPtr Exception::_init(S message, const char *file, int line, const char *function) {
     try {
         StrPtr messagePtr = std::make_unique<Str>(message);
+        auto trace = psx::Trace::stack();
+        std::string stack;
+
+        for (auto i : trace) {
+            stack.append("\n" + i);
+        }
 
         if (nullptr == file) {
+            messagePtr->append(stack);
             return messagePtr;
         }
 
         messagePtr->append(" File: ").append(file);
 
         if (0 == line) {
+            messagePtr->append(stack);
             return messagePtr;
         }
 
         messagePtr->append(":").append(std::to_string(line));
 
         if (nullptr == function) {
+            messagePtr->append(stack);
             return messagePtr;
         }
 
         messagePtr->append(" (").append(function).append(")");
+        messagePtr->append(stack);
         return messagePtr;
     } catch(const std::exception &) {}
 

@@ -73,19 +73,19 @@ START_TESTS
     TEST_TRY
         throw psx::Exception("test");
     TEST_CATCH
-        ASSERT_IN_CATCH(string(exception.what()) == "test");
+        ASSERT_IN_CATCH(string(exception.what()).find("test") != std::string::npos);
     END_TEST_TRY
 
     TEST_TRY
         throw psx::Exception("test", "file");
     TEST_CATCH
-        ASSERT_IN_CATCH(string(exception.what()) == "test File: file");
+        ASSERT_IN_CATCH(string(exception.what()).find("test File: file") != std::string::npos);
     END_TEST_TRY
 
     TEST_TRY
         throw psx::Exception("test", "file",3);
     TEST_CATCH
-        ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3");
+        ASSERT_IN_CATCH(string(exception.what()).find("test File: file:3") != std::string::npos);
     END_TEST_TRY
 
     TEST_TRY
@@ -96,7 +96,7 @@ START_TESTS
         test_self_assign(third, third);
         throw third;
     TEST_CATCH
-        ASSERT_IN_CATCH(string(exception.what()) == "test File: file:3 (func)");
+        ASSERT_IN_CATCH(string(exception.what()).find("test File: file:3 (func)") != std::string::npos);
     END_TEST_TRY
 
 END_TESTS
