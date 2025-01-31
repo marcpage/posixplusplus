@@ -6,7 +6,7 @@ START_TESTS
     typedef const char *(*version)();
     typedef pid_t (*get_pid)();
 
-    auto z = psx::Library::open("c");
+    auto z = psx::Library::open("c.so.6");
     auto z2 = std::move(z);
 
     printf("pid = %d\n", int(z2.load<get_pid>("getpid")()));
