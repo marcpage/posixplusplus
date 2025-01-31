@@ -4,11 +4,13 @@
 START_TESTS
 
     typedef const char *(*version)();
+    typedef pid_t (*get_pid)();
 
-    auto z = psx::Library::open("z.1");
+    auto z = psx::Library::open("c");
     auto z2 = std::move(z);
 
-    printf("zlib version = %s\n", z2.load<version>("zlibVersion")());
+    printf("pid = %d\n", int(z2.load<get_pid>("getpid")()));
+    ASSERT(z2.load<get_pid>("getpid")() != 0);
     ASSERT(z2.valid());
     ASSERT(!z.valid());
 
