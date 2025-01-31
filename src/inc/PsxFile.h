@@ -15,6 +15,7 @@ public:
 
     static File open(const char *path, Method method=Text, Protection protection=ReadOnly);
     static File open(const std::string &path, Method method=Text, Protection protection=ReadOnly);
+    static File execute(const std::string &command);
     static File reference(FILE *file, bool readOnly=false);
     static File own(FILE *file, CloseFunc closeFunc=::fclose, bool readOnly=false);
     static File err();
@@ -42,6 +43,8 @@ public:
     std::string read(size_t bytesToRead=RestOfFile, off_t offset=0, Relative relative=FromHere) const;
     std::string &readLine(std::string &buffer, off_t offset=0, Relative relative=FromHere, size_t bufferSize=4096) const;
     std::string readLine(off_t offset=0, Relative relative=FromHere, size_t bufferSize=4096) const;
+    std::string &readToEnd(std::string &buffer, const size_t blocks=4096) const;
+    std::string readToEnd(const size_t blocks=4096) const;
 
     File &write(const void *buffer, size_t bufferSize, off_t offset=0, Relative relative=FromHere);
     File &write(const std::string &buffer, off_t offset=0, Relative relative=FromHere);
@@ -56,7 +59,7 @@ private:
     CloseFunc _close;
 
     File(FILE *file, CloseFunc closeFunc, bool readOnly);
-    void _readCore(void *buffer, size_t bufferSize) const;
+    size_t _readCore(void *buffer, size_t bufferSize, bool exactSize=true) const;
     void _goto(off_t offset, Relative relative) const;
     void _locationAndSize(off_t &location, off_t &size) const;
 
@@ -220,6 +223,31 @@ inline std::string File::readLine(off_t offset, Relative relative, size_t buffer
     return readLine(buffer, offset, relative, bufferSize);
 }
 
+inline std::string &File::readToEnd(std::string &buffer, const size_t blocks) const {
+    buffer.clear();
+
+    while (!endOfFile()) {
+        std::string::size_type offset = buffer.size();
+        size_t amount;
+
+        buffer.append(blocks, '\0');
+        amount = _readCore(&const_cast<char *>(buffer.data())[offset], blocks, false);
+
+        if (static_cast<size_t>(amount) != blocks) {
+            buffer.erase(offset + amount);
+            ErrnoCodeThrow(::ferror(_file), "buffer error");
+        }
+    }
+
+    return buffer;
+}
+
+inline std::string File::readToEnd(const size_t blocks) const {
+    std::string buffer;
+
+    return readToEnd(buffer, blocks);
+}
+
 inline File &File::write(const void *buffer, size_t bufferSize, off_t offset, Relative relative) {
     PsxAssert(!_readOnly);
     _goto(offset, relative);
@@ -253,6 +281,11 @@ inline File File::open(const std::string &path, Method method, Protection protec
     return own(file, ::fclose, readOnly);
 }
 
+inline File File::execute(const std::string &command) {
+    const auto readOnly = true;
+    return own(ErrnoOnNullMsg(::popen(command.c_str(), "r"), command), ::pclose, readOnly);
+}
+
 inline File File::reference(FILE *file, bool readOnly) {
     return File(file, nullptr, readOnly);
 }
@@ -276,12 +309,13 @@ inline File File::in() {
 inline File::File(FILE *file, CloseFunc closeFunc, bool readOnly)
     :_file(file), _readOnly(readOnly), _close(closeFunc) {}
 
-inline void File::_readCore(void *buffer, size_t bufferSize) const {
+inline size_t File::_readCore(void *buffer, size_t bufferSize, bool exactSize) const {
     int fileError;
     auto amount = ::fread(reinterpret_cast<char *>(buffer), 1, bufferSize, _file);
 
     PsxAssert(((fileError = ::ferror(_file)) == 0) || (fileError == EOF));
-    PsxAssert(amount == bufferSize);
+    PsxAssert(!exactSize || amount == bufferSize);
+    return amount;
 }
 
 inline void File::_goto(off_t offset, Relative relative) const {

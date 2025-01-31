@@ -106,5 +106,7 @@ START_TESTS
         FAIL_IN_CATCH();
     END_TEST_TRY
 
+    ASSERT(psx::File::execute("ls").readToEnd().find("README.md") != std::string::npos);
+
 END_TESTS
 
