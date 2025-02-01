@@ -42,6 +42,7 @@ public:
     IPv4(const struct sockaddr *address, socklen_t size);
     IPv4(in_port_t port=0, u_int32_t address=INADDR_ANY);
     IPv4(const std::string &address, in_port_t port);
+    IPv4(IPv4 &&other);
     virtual ~IPv4();
 
     struct sockaddr *get() override;
@@ -89,6 +90,7 @@ inline Address::String Address::name(Qualified qualified, Format format, Require
                     | (NameRequired == required ? NI_NAMEREQD : 0);
 
     GAIMessageThrow(::getnameinfo(get(), size(), const_cast<char *>(dnsName.data()), dnsName.size(), nullptr, 0, flags));
+    dnsName.erase(::strlen(dnsName.data()));
     return dnsName;
 }
 
@@ -124,13 +126,21 @@ inline IPv4::IPv4(const std::string &address, in_port_t port) {
     if (nullptr == hostaddress) {
         PsxThrow(std::string("gethostbyname2 failed: ").append(::hstrerror(h_errno)));
     }
+    PsxAssert(hostaddress->h_addrtype == family());
 
 #if defined(__APPLE__)
     _address.sin_len = Size;
 #endif
     _address.sin_family = hostaddress->h_addrtype;
     _address.sin_port = htons(port);
-    ::memcpy(&_address.sin_addr.s_addr, hostaddress->h_addr, hostaddress->h_length);
+    ::memcpy(&_address.sin_addr, hostaddress->h_addr_list[0], static_cast<size_t>(hostaddress->h_length));
+    //::memcpy(&_address.sin_addr.s_addr, hostaddress->h_addr, static_cast<size_t>(hostaddress->h_length));
+    //::bcopy(reinterpret_cast<char *>(hostaddress->h_addr), reinterpret_cast<char *>(&_address.sin_addr.s_addr), static_cast<size_t>(hostaddress->h_length));
+}
+
+IPv4::IPv4(IPv4 &&other)
+    :_address(other._address) {
+    _memclear(other._address);
 }
 
 inline IPv4::~IPv4() {}
@@ -173,13 +183,14 @@ inline IPv6::IPv6(const std::string &address, in_port_t port) {
     if (nullptr == hostaddress) {
         PsxThrow(std::string("gethostbyname2 failed: ").append(::hstrerror(h_errno)));
     }
-
+    PsxAssert(hostaddress->h_addrtype == family());
+    
 #if defined(__APPLE__)
     _address.sin6_len = Size;
 #endif
     _address.sin6_family = hostaddress->h_addrtype;
     _address.sin6_port = htons(port);
-    ::memcpy(&_address.sin6_addr, hostaddress->h_addr, hostaddress->h_length);
+    ::memcpy(&_address.sin6_addr, hostaddress->h_addr, static_cast<size_t>(hostaddress->h_length));
 }
 
 inline IPv6::~IPv6() {}
