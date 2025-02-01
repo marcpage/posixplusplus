@@ -2,6 +2,7 @@
 
 #include "PsxException.h"
 #include <netdb.h>
+#include <string.h>
 
 namespace psx {
 

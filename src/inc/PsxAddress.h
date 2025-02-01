@@ -6,7 +6,6 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <string.h>
 #include <string>
 
 namespace psx {
@@ -136,9 +135,7 @@ inline IPv4::IPv4(const std::string &address, in_port_t port)
 #endif
     _address.sin_family = hostaddress->h_addrtype;
     _address.sin_port = htons(port);
-    ::memcpy(&_address.sin_addr, hostaddress->h_addr_list[0], static_cast<size_t>(hostaddress->h_length));
-    //::memcpy(&_address.sin_addr.s_addr, hostaddress->h_addr, static_cast<size_t>(hostaddress->h_length));
-    //::bcopy(reinterpret_cast<char *>(hostaddress->h_addr), reinterpret_cast<char *>(&_address.sin_addr.s_addr), static_cast<size_t>(hostaddress->h_length));
+    ::memcpy(&_address.sin_addr.s_addr, hostaddress->h_addr, static_cast<size_t>(hostaddress->h_length));
 }
 
 IPv4::IPv4(IPv4 &&other)
