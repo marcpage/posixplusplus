@@ -108,7 +108,8 @@ inline IPv4::IPv4(const struct sockaddr *address, socklen_t size)
     ::memcpy(&_address, address, Size);
 }
 
-inline IPv4::IPv4(in_port_t port, u_int32_t address) {
+inline IPv4::IPv4(in_port_t port, u_int32_t address)
+    :Address(), _address() {
     _memclear(_address);
 #if defined(__APPLE__)
   _address.sin_len = Size;
@@ -118,7 +119,8 @@ inline IPv4::IPv4(in_port_t port, u_int32_t address) {
   _address.sin_port = htons(port);
 }
 
-inline IPv4::IPv4(const std::string &address, in_port_t port) {
+inline IPv4::IPv4(const std::string &address, in_port_t port)
+    :Address(), _address() {
     struct hostent *hostaddress;
 
     _memclear(_address);
@@ -140,7 +142,7 @@ inline IPv4::IPv4(const std::string &address, in_port_t port) {
 }
 
 IPv4::IPv4(IPv4 &&other)
-    :_address(other._address) {
+    :Address(), _address(other._address) {
     _memclear(other._address);
 }
 
@@ -158,14 +160,16 @@ inline sa_family_t IPv4::family() const {
     return Family;
 }
 
-inline IPv6::IPv6(const struct sockaddr *address, socklen_t size) {
+inline IPv6::IPv6(const struct sockaddr *address, socklen_t size)
+    :Address(), _address() {
   PsxAssert(NULL != address);
   PsxAssert(Size == size);
   PsxAssert(Family == reinterpret_cast<const struct sockaddr *>(address)->sa_family);
   ::memcpy(&_address, address, Size);
 }
 
-inline IPv6::IPv6(in_port_t port, in6_addr address) {
+inline IPv6::IPv6(in_port_t port, in6_addr address)
+    :Address(), _address() {
     _memclear(_address);
 #if defined(__APPLE__)
   _address.sin6_len = Size;
@@ -175,7 +179,8 @@ inline IPv6::IPv6(in_port_t port, in6_addr address) {
   _address.sin6_port = htons(port);
 }
 
-inline IPv6::IPv6(const std::string &address, in_port_t port) {
+inline IPv6::IPv6(const std::string &address, in_port_t port)
+    :Address(), _address() {
     struct hostent *hostaddress;
 
     _memclear(_address);
