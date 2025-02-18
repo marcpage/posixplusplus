@@ -398,7 +398,7 @@ template <class S>
 inline std::string Errno::_init(S message, const char* errnoName, int value) {
     return std::string("[") + errnoName 
             + " (" + std::to_string(value) + "): " 
-            + strerror(value) + "]: " 
+            + ::strerror(value) + "]: " 
             + std::string(message);
 } // NOTEST
 
